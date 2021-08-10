@@ -1,0 +1,191 @@
+<?php
+/**
+ * Display / Edit Billing Info in WordPress's user profile page.
+ *
+ * @version     1.0.0
+ */
+namespace WPDMPP\Libs;
+
+// Exit if accessed directly
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+if( ! class_exists( 'BillingInfo' ) ):
+
+    class BillingInfo{
+
+        function __construct()
+        {
+            add_action( 'show_user_profile',        array( $this, 'wpdmpp_add_billing_info_fields' ) );
+            add_action( 'edit_user_profile',        array( $this, 'wpdmpp_add_billing_info_fields' ) );
+            add_action( 'personal_options_update',  array( $this, 'wpdmpp_save_billing_info_fields' ) );
+            add_action( 'edit_user_profile_update', array( $this, 'wpdmpp_save_billing_info_fields' ) );
+        }
+
+        function wpdmpp_add_billing_info_fields($user){
+            global $wpdmpp_settings;
+            $billing_shipping = unserialize(get_user_meta($user->ID, 'user_billing_shipping',true));
+            $billing_defaults =  array
+            (
+                'first_name'    => '',
+                'last_name'     => '',
+                'company'       => '',
+                'address_1'     => '',
+                'address_2'     => '',
+                'city'          => '',
+                'postcode'      => '',
+                'country'       => '',
+                'state'         => '',
+                'email'         => '',
+                'phone'         => '',
+                'taxid'         => ''
+            );
+
+            //echo '<pre>';print_r($billing_shipping);echo '</pre>';
+
+            if( is_array( $billing_shipping ) && isset( $billing_shipping['billing'] ) )
+                $billing = $billing_shipping['billing'];
+            else
+                $billing = $billing_defaults;
+
+            ob_start();
+            ?>
+            <div class="w3eden" style="width: 800px;max-width: 100%;">
+
+            <div class="panel panel-default">
+                <div class="panel-heading"><?php _e('Is Customer?','wpdm-premium-packages'); ?></div>
+                <div class="panel-body">
+                    <label><input style="margin: -1px 5px 0 0" type="checkbox" <?php if(current_user_can('manage_options')) { ?> value="1" name="wpdmpp_customer" <?php } else  echo "disabled"; ?> <?php checked(in_array('wpdmpp_customer', $user->roles), true) ?>> <?php _e('Customer','wpdm-premium-packages'); ?></label>
+                </div>
+            </div>
+
+                <div class="panel panel-default">
+            <div class="panel-heading"><?php _e('Customer Billing Address','wpdm-premium-packages'); ?></div>
+
+            <div class="panel-body">
+                <div class="form-group">
+                    <label for="billing_first_name"><?php _e("First Name", "wpdm-premium-packages"); ?></label>
+
+                        <input type="text" value="<?php echo $billing['first_name']; ?>" name="checkout[billing][first_name]" id="billing_first_name" class="form-control" />
+                        <span class="description"><?php _e('Enter your first name.', 'wpdm-premium-packages'); ?></span>
+                </div>
+                <div class="form-group">
+                    <label for="billing_last_name"><?php _e("Last Name", "wpdm-premium-packages"); ?></label>
+                     
+                        <input type="text" value="<?php echo $billing['last_name']; ?>" placeholder="Last Name" id="billing_last_name" name="checkout[billing][last_name]" class="form-control">
+                        <span class="description"><?php _e('Enter your last name.', 'wpdm-premium-packages'); ?></span>
+                    
+                </div>
+                <div class="form-group">
+                    <label for="billing_company"><?php _e("Company Name", "wpdm-premium-packages"); ?></label>
+                    
+                        <input type="text" value="<?php echo $billing['company']; ?>" placeholder="Company (optional)" id="billing_company" name="checkout[billing][company]" class="form-control">
+                        <span class="description"><?php _e('Enter your company name.', 'wpdm-premium-packages'); ?></span>
+                    
+                </div>
+                <div class="form-group">
+                    <label class="" for="billing_address_1"><?php _e("Address Line 1", "wpdm-premium-packages"); ?> </label>
+                    
+                        <input type="text" value="<?php echo $billing['address_1']; ?>" placeholder="Address" id="billing_address_1" name="checkout[billing][address_1]" class="form-control"> 
+                        <span class="description"><?php _e('Enter your billing address line 1.', 'wpdm-premium-packages'); ?></span>
+                    
+                </div>
+                <div class="form-group">
+                    <label  class="" for="billing_address_2"><?php _e("Address Line 2", "wpdm-premium-packages"); ?></label>
+                    
+                        <input type="text" value="<?php echo $billing['address_2']; ?>" placeholder="Address 2 (optional)" id="billing_address_2" name="checkout[billing][address_2]" class="form-control">
+                        <span class="description"><?php _e('Enter your billing address line 2.', 'wpdm-premium-packages'); ?></span>
+                    
+                </div>
+                <div class="form-group">
+                    <label class="" for="billing_city"><?php _e("Town/City", "wpdm-premium-packages"); ?> </label>
+                    
+                        <input type="text" value="<?php echo $billing['city']; ?>" placeholder="Town/City" id="billing_city" name="checkout[billing][city]" class="form-control">
+                        <span class="description"><?php _e('Enter your billing city name.', 'wpdm-premium-packages'); ?></span>
+                    
+                </div>
+                <div class="form-group">
+                    <label class="" for="billing_postcode"><?php _e("Postcode/Zip", "wpdm-premium-packages"); ?> </label>
+                    
+                        <input type="text" value="<?php echo $billing['postcode']; ?>" placeholder="Postcode/Zip" id="billing_postcode" name="checkout[billing][postcode]" class="form-control">
+                        <span class="description"><?php _e('Enter your billing post code.', 'wpdm-premium-packages'); ?></span>
+                    
+                </div>
+                <div class="form-group">
+                    <label class="" for="billing_country"><?php _e("Country", "wpdm-premium-packages"); ?> </label>
+                    
+                        <?php
+                        $countries = wpdmpp_get_countries();
+                        $allowed_countries = ( isset($wpdmpp_settings['allow_country'] ) ) ? $wpdmpp_settings['allow_country'] : array();
+                        ?>
+                        <select class="wpdm-custom-select form-control" id="billing_country" name="checkout[billing][country]">
+                            <option value=""><?php _e('--Select Country--','wpdm-premium-packages'); ?></option>
+                            <?php
+                            foreach ($countries as $country) {
+                                if ( ! empty( $allowed_countries ) ) {
+                                    if( in_array( $country->country_code, $allowed_countries ) )
+                                        echo '<option value="' . $country->country_code . '"' . selected( $billing['country'], $country->country_code, false ) . '>' . $country->country_name . '</option>';
+                                } else {
+                                    echo '<option value="' . $country->country_code . '" ' . selected( $billing['country'], $country->country_code, false ) . '>' . $country->country_name . '</option>';
+                                }
+                            }
+                            ?>
+                        </select>
+                        <span class="description"><?php _e('Enter your billing country name.', 'wpdm-premium-packages'); ?></span>
+                    
+                </div>
+                <div class="form-group">
+                    <label class="" for="billing_state"><?php _e("State/County", "wpdm-premium-packages"); ?> </label>
+                    
+                        <input type="text" value="<?php echo $billing['state']; ?>" id="billing_state" name="checkout[billing][state]" placeholder="State/County" class="form-control">
+                        <span class="description"><?php _e('Enter your billing state.', 'wpdm-premium-packages'); ?></span>
+                    
+                </div>
+                <div class="form-group">
+                    <label class="" for="billing_email"><?php _e("Email Address", "wpdm-premium-packages"); ?> </label>
+                    
+                        <input type="text" value="<?php echo $billing['email']; ?>" placeholder="Email Address" id="billing_email" name="checkout[billing][email]" class="form-control email">
+                        <span class="description"><?php _e('Enter your billing email address.', 'wpdm-premium-packages'); ?></span>
+                    
+                </div>
+                <div class="form-group">
+                    <label class="" for="billing_phone"><?php _e("Phone", "wpdm-premium-packages"); ?> </label>
+                    
+                        <input type="text" value="<?php echo $billing['phone']; ?>" placeholder="Phone" id="billing_phone" name="checkout[billing][phone]" class="form-control">
+                        <span class="description"><?php _e('Enter your billing phone number.', 'wpdm-premium-packages'); ?></span>
+                    
+                </div>
+                <div class="form-group">
+                    <label class="" for="billing_tin"><?php _e("Tax ID", "wpdm-premium-packages"); ?> </label>
+                    
+                        <input type="text" value="<?php echo $billing['taxid']; ?>" placeholder="Tax Identification Number" id="billing_tin" name="checkout[billing][taxid]" class="form-control">
+                        <span class="description"><?php _e('Enter your Tax Identification Number.', 'wpdm-premium-packages'); ?></span>
+                    
+                </div>
+            </div>
+            </div>
+            </div>
+
+            <?php
+            $data = ob_get_clean();
+            echo apply_filters('wpdmpp_add_billing_info_fields', $data, $user);
+        }
+
+        function wpdmpp_save_billing_info_fields($user_id){
+            if ( !current_user_can( 'edit_user', $user_id ) ) return false;
+            $codata = wpdmpp_sanitize_array($_POST['checkout']);
+            update_user_meta($user_id, 'user_billing_shipping', serialize($codata));
+            if(current_user_can(WPDMPP_ADMIN_CAP)) {
+                if (isset($_REQUEST['wpdmpp_customer']))
+                    User::addCustomer($user_id);
+                else
+                    User::removeCustomer($user_id);
+            }
+        }
+
+    }
+
+endif;
+
+new BillingInfo();

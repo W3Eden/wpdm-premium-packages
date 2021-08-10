@@ -1,0 +1,179 @@
+<?php
+/**
+ * Create new order
+ *
+ * @version     1.0.0
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly
+}
+
+global $wpdb;
+
+$order_id = uniqid();
+
+$sbilling =  array
+(
+    'first_name' => '',
+    'last_name' => '',
+    'company' => '',
+    'address_1' => '',
+    'address_2' => '',
+    'city' => '',
+    'postcode' => '',
+    'country' => '',
+    'state' => '',
+    'email' => '',
+    'order_email' => '',
+    'phone' => ''
+);
+
+?>
+<?php ob_start(); ?>
+
+<table width="100%" cellspacing="0" class="table">
+    <thead>
+    <tr><th align="left"><?php _e("Item Name","wpdm-premium-packages");?></th>
+        <th align="left"><?php _e("Unit Price","wpdm-premium-packages");?></th>
+        <th align="left"><?php _e("Quantity","wpdm-premium-packages");?></th>
+        <th align="left"><?php _e("Discount","wpdm-premium-packages");?></th>
+        <th align="left"><?php _e("Coupon Code","wpdm-premium-packages");?></th>
+        <th align="left"><?php _e("Coupon Discount","wpdm-premium-packages");?></th>
+        <th align="left"><?php _e("Total","wpdm-premium-packages");?></th>
+        <th align="left"><?php _e("Subtotal","wpdm-premium-packages");?></th>
+    </tr>
+    </thead>
+
+</table>
+<?php $content = ob_get_clean(); ?>
+
+
+<div class="w3eden admin-orders">
+    <div class="panel panel-default" id="wpdm-wrapper-panel">
+        <div class="panel-heading">
+            <b><i class="fa fa-bars color-purple"></i> &nbsp; <?php _e("View Order","wpdm-premium-packages");?></b>
+        </div>
+        <div class="panel-body">
+            <br/><br/><br/>
+
+            <div class="well" style="background-image: none">
+                <b><?php _e("Order Status:", "wpdm-premium-packages"); ?>
+                    <select id="osv" name="order_status" style="width: 150px;display: inline" >
+                        <option value="Pending">Pending</option>
+                        <option value="Processing">Processing</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Expired">Expired</option>
+                        <option value="Cancelled">Cancelled</option>
+                        <option value="Renew" class="text-success text-renew">Renew Order</option>
+                    </select>
+                </b>
+                &nbsp;
+                <b><?php _e("Payment Status:", "wpdm-premium-packages"); ?>
+                    <select id="psv" name="payment_status"  style="width: 150px;display: inline" >
+                        <option value="Pending">Pending</option>
+                        <option value="Processing">Processing</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Bonus">Bonus</option>
+                        <option value="Gifted">Gifted</option>
+                        <option value="Cancelled">Cancelled</option>
+                        <option value="Disputed">Disputed</option>
+                        <option value="Refunded">Refunded</option>
+                    </select>
+                </b><input id="update_ps" type="button" class="btn btn-default" value="Update">
+            </div>
+            <div id="msg" style="border-radius: 3px;display: none;" class="alert alert-success"><?php _e("Message", "wpdm-premium-packages"); ?></div>
+            <div class="row">
+                <div class=" col-md-4">
+                    <div class="panel panel-default">
+                        <div class="panel-heading"><?php _e("Order ID", "wpdm-premium-packages"); ?></div>
+                        <div class="panel-body">
+                            <span class="lead"><?php echo $order_id; ?></span>
+                        </div>
+                    </div>
+                </div>
+                <div class=" col-md-4">
+                    <div class="panel panel-default">
+                        <div class="panel-heading"><?php _e("Order Date", "wpdm-premium-packages"); ?></div>
+                        <div class="panel-body">
+                            <span class="lead"><?php echo date("M d, Y h:i a", time()); ?></span>
+                        </div>
+                    </div>
+                </div>
+                <div class=" col-md-4">
+                    <div class="panel panel-default">
+                        <div class="panel-heading"><?php _e("Order Total", "wpdm-premium-packages"); ?></div>
+                        <div class="panel-body">
+                            <span class="lead"><?php echo $currency_sign ; ?>0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="clear: both"></div>
+                <div class="col-md-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading"><?php _e("Order Items", "wpdm-premium-packages"); ?></div>
+                        <?php echo $content; ?>
+                        <div class="panel-footer text-right">
+                            <input type="but">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+    jQuery(function(){
+        <?php
+        $style = array(
+            'Pending'=>'btn-warning',
+            'Expired'=>'btn-danger',
+            'Processing' => 'btn-info',
+            'Completed'=>'btn-success',
+            'Bonus' => 'btn-success',
+            'Gifted' => 'btn-success',
+            'Cancelled' => 'btn-danger',
+            'Disputed' => 'btn-danger',
+            'Refunded' => 'btn-danger'
+        );
+        $order_id = sanitize_text_field($_GET['id']);
+        ?>
+        jQuery('select#osv').selectpicker({style: '<?php echo isset($style[$order->order_status])?$style[$order->order_status]:'btn-default'; ?>'});
+        jQuery('select#psv').selectpicker({style: '<?php echo $style[$order->payment_status]; ?>'});
+
+        jQuery('#update_os').click(function(){
+            jQuery('#lng').fadeIn();
+            jQuery.post(ajaxurl,{action:'wpdmpp_ajax_call',execute:'UpdateOS',order_id:'<?php echo $order_id; ?>',status:jQuery('#osv').val()},function(res){
+                jQuery('#msg').html(res).fadeIn();
+                jQuery('#lng').fadeOut();
+            });
+        });
+
+        jQuery('#update_ps').click(function(){
+            jQuery('#lng').fadeIn();
+            jQuery.post(ajaxurl,{action:'wpdmpp_ajax_call',execute:'UpdatePS',order_id:'<?php echo $order_id; ?>',status:jQuery('#psv').val()},function(res){
+                jQuery('#msg').html(res).fadeIn();
+                jQuery('#lng').fadeOut();
+            });
+        });
+
+        jQuery('#ausra').click(function(){
+            jQuery.post(ajaxurl, {action: 'assign_user_2order', order: '<?php echo $order_id; ?>', assignuser: jQuery('#ausr').val()}, function(){
+                jQuery('#ausre').html('Done!');
+            });
+        });
+    });
+</script>
+<style>
+    .chzn-search input{ display: none; }.chzn-results{ padding-top: 5px !important; }
+    .btn-group.bootstrap-select .btn{ border-radius: 3px !important; }
+    a:focus{ outline: none !important; }
+    .panel-heading{ font-weight: bold; }
+    .text-renew *{ font-weight: 800; color: #1e9460; }
+    .w3eden .dropdown-menu > li{ margin-bottom: 0; }
+    .w3eden .dropdown-menu > li > a{ padding: 5px 20px; }
+</style>

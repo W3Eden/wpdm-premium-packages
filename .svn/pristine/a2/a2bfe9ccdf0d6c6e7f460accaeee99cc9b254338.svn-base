@@ -1,0 +1,73 @@
+#wpdm-cart-panel, #wpdm-cart-panel *:not(.btn):not(#wpdmpp_mini_cart_subtotal):not(.fa):not(#wpdm-cit):not(#wpdm-cic) {
+    box-sizing: unset;
+    -webkit-box-sizing: content-box;
+    color: #333333 !important;
+}
+#wpdm-cart-panel {
+    width: 250px;
+    position: fixed;
+    display: block;
+    left: 0px;
+    padding: 20px;
+    background: #ffffff;
+    top: 100px;
+    -webkit-transition: all 1s ease-in-out;
+    -moz-transition: all 1s ease-in-out;
+    -o-transition: all 1s ease-in-out;
+    transition: all 1s ease-in-out;
+    box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+}
+#wpdm-cart-panel-trigger {
+    position: absolute;
+    left: 290px;
+    padding: 10px 50px 10px 10px;
+    background: #ffffff url("../images/shoppingbag.png") no-repeat 87px center;
+    background-size: 35px;
+    height: 30px;
+    font-size: 8pt;
+    text-align: right;
+    font-weight: 400;
+    box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+    text-transform: uppercase;
+    color: #d58df0 !important;
+    -webkit-transition: all 200ms ease-in-out;
+    -moz-transition: all 200ms ease-in-out;
+    -o-transition: all 200ms ease-in-out;
+    transition: all 200ms ease-in-out;
+    background-position: 5px center;
+}
+#wpdm-cic, .wpdm-cart-info{
+    color: #d58df0 !important;
+}
+#wpdm-cart-panel-trigger h3 {
+    font-size: 10pt;
+    margin: 0;
+    padding: 0 0 3px 0;
+    font-weight: 700;
+    color: #B373CC !important;
+}
+#wpdm-cart-panel.off {
+    left: -290px;
+}
+#wpdm-cart-panel #wpdm-cart-panel-trigger {
+    width: 10px;
+    padding: 10px 20px 10px 20px;
+    overflow: hidden;
+}
+#wpdm-cart-panel #wpdm-cart-panel-trigger .wpdm-cart-info {
+    display: none;
+    -webkit-transition: all 1s ease-in-out;
+    -moz-transition: all 1s ease-in-out;
+    -o-transition: all 1s ease-in-out;
+    transition: all 1s ease-in-out;
+}
+#wpdm-cart-panel.off #wpdm-cart-panel-trigger .wpdm-cart-info {
+    display: block;
+    height: 30px;
+    overflow: hidden;
+}
+#wpdm-cart-panel.off #wpdm-cart-panel-trigger {
+    width: 70px;
+    background-position: 87px center;
+    padding: 10px 50px 10px 10px;
+}

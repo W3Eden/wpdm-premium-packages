@@ -1,0 +1,89 @@
+=== WPDM - Premium Packages ===
+Contributors: w3eden, codename065, shahriar0822
+Donate link: 
+Tags: shopping cart, digital store, online shop, wordpress ecommerce, products, product management, sell digital product, membership management
+Requires at least: 3.5
+Tested up to: 4.9
+ 
+WPDM - Premium Packages is a free full-featured Shopping Cart / eCommerce Plugin with everything you need on an easy UI, to build eShop or marketplace.
+
+== Description ==
+Use WPDM - Premium Packages plugin to convert your [Download Manager](https://wordpress.org/plugins/download-manager/) into a complete e-Commerce Solution for selling digital products. Simply put a price when you need to sell a digital item. You also may use license  ( ex: Simple, Extended, Unlimited ) based prices for a product. Users can directly download free items and when an item has a price user will have to go through cart & checkout. WordPress Download Manager has the easiest checkout option to give the user better experience in purchasing an item and which always increase the probability of successful completion of an order.
+
+= Features =
+*   Sell Digital Products Securely
+*   Easy Administration
+*   PayPal Integrated
+*   User-role Based Discount Management
+*   Coupon Management
+*   Sales Tax
+*   Save Cart and Checkout Later
+*   Email Saved Cart
+*   Product & Price Variations ( License Based Pricing / Sell Extra Gigs with Product )
+*   Promotional Pricing for Your Digital Products
+*   "Pay As You Want" pricing
+*   Invoice Generation
+*   Easiest Checkout System
+*   Guest Checkout and Guest Download
+*   Order expiration option ( Like 1 year support & update access, then expire )
+*   Auto-renew order option ( Accept Recurring Payment for Orders )
+*   Easy Order Management
+*   Sales Notifications via Email
+*   Sales Notification Directly in Your Mobile with Push Message
+*   Very Detailed Sales Reports
+*   Order Notes & Messaging System
+*   Extended Product Licensing System
+*   License Level Pricing
+*   Easy to implement license API for license system integration
+
+= Need More Features? =
+*   Full-featured Digital Products Marketplace with Front-end product submission & payout management ( This Feature Requires WPDM v4+ )
+*   Sell individual files ( like single song from an album )  ( This Feature Requires WPDM v4+ )
+*   and [much more...](https://www.wpdownloadmanager.com/downloads/ecommerce-add-ons/)
+
+
+== Changelog ==
+
+= 3.9.1 - 2018.05.13 =
+* Sanitized all missing input data
+
+= 3.8.9 =
+* Template Optimization, you can personalize templates more easily now
+* Fixed JS issue in frontend add new page
+* Added currency symbol position ( before and after amount ) option
+* Fixed save cart error
+
+= 3.8.6 =
+* Added "As You Want To Pay" option
+* Fixed issue with cart discount calculation after deleting a cart item
+
+= 3.8.5 =
+* Added a new option to add global coupon code
+* Added a separate page to manage all coupons
+
+= 3.8.4 =
+* Added new option for coupon code expire date
+* Improved free download option for premium packages
+
+= 3.8.3 =
+* Fixed issue with installation function
+
+= 3.8.1 =
+* Fixed issue with role discount
+* Fixed issue with individual file download for purchased packages
+
+= 3.5.8 =
+* 100% Translation ready
+* Fixed a bug that shows wrong Net Subtotal of License variation in Invoice
+* Fixed a bug that shows wrong Customer Billing Address in Invoice
+* Added Premium Package template tags in Dashboard >> Downloads >> Template Editor screen
+* Fixed currency sign of total sales in admin orders screen
+
+= 3.5.7 =
+* Fixed issue with Save Cart feature in cart page
+* Fixed Frontend uploader metabox issue ( Not loading Premium Package Data like price, variations etc )
+
+= 3.5.6 =
+* Fixed issue decimal point in order total
+* Fixed issue with country dropdown in billing address
+* Fixed issue with default payment method integration

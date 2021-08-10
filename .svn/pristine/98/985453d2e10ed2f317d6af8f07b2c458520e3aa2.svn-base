@@ -1,0 +1,100 @@
+.wpdmpp-license-select{
+    margin: 10px 0 20px;
+}
+.wpdmpp-license-select .license-heading{
+    margin-bottom: 10px;
+}
+h3.wpdmpp-product-price{
+    font-weight: 900;
+}
+.cart-total-final.btn{
+    background: transparent;
+}
+.w3eden span.fa-stack,
+.admin-orders span.fa-stack{
+    font-size: 0.85em;
+    display: inline-block;
+    height: 1.7em;
+    line-height: 1.7em;
+    position: relative;
+    vertical-align: middle;
+    width: 1.7em;
+    box-sizing: content-box !important;
+}
+.admin-orders .fa-stack .fa-stack-2x{
+    display: none;
+}
+.admin-orders .fa-stack .fa-stack-1x{
+    border-radius: 500px;
+    border: 1px solid #444444;
+    font-size: 90%;
+    box-sizing: content-box !important;
+}
+.admin-orders table .oa-Processing .fa-stack-1x,
+.admin-orders table .oa-Processing{
+    color: #3498DB;
+    border-color: #3498DB;
+}
+.fa-stack.oa-Refunded,
+.fa-stack.oa-Refunded .fa-stack-1x,
+.download-off .fa-stack-1x,
+.download-off{
+    color: #cccccc;
+    border-color: #cccccc !important;
+}
+.renew-active,
+.renew-active *,
+.download-on,
+.download-on .fa-stack-1x,
+.admin-orders table .oa-Completed .fa-stack-1x,
+.admin-orders table .oa-Completed{
+    color: #5CA572;
+    border-color: #5CA572 !important;
+}
+.admin-orders table .oa-Cancelled .fa-stack-1x,
+.admin-orders table .oa-Cancelled{
+    color: #C64F4D;
+    border-color: #C64F4D;
+}
+.admin-orders table .oa-Disputed .fa-stack-1x,
+.admin-orders table .oa-Disputed{
+    color: #F75D74;
+    border-color: #F75D74;
+}
+.admin-orders table .oa-Expired .fa-stack-1x,
+.admin-orders table .oa-Expired{
+    color: #F2983E;
+    border-color: #F2983E;
+}
+.admin-orders table .oa-Gifted .fa-stack-1x,
+.admin-orders table .oa-Gifted{
+    color: #CD6DED;
+    border-color: #CD6DED;
+}
+.text-filter{
+    margin-left: 10px;
+    color: #B56CA4;
+}
+div.tooltip,
+div.tooltip-inner{
+    border-radius: 2px !important;
+    padding: 5px 10px !important;
+}
+.w3eden .note { color: #888; }
+
+.w3eden .order.summery.row .panel-body h3{
+    font-size: 15pt;
+    font-weight: 700;
+    font-family: monospace;
+}
+.w3eden .table.table-vt td{
+    vertical-align: top !important;
+}
+.w3eden a,.w3eden a:focus{
+    outline: none !important;
+}
+
+.renew-cancelled, .renew-cancelled *{
+    color: #e8473c !important;
+    border-color: #e8473c !important;
+}
