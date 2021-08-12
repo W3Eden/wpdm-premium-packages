@@ -436,7 +436,7 @@ class CustomActions {
         foreach ($cart_data as $id => $info) {
             ?>
             <tr id="citem-<?= $id; ?>">
-                <td align="left"><strong><?php echo $info['post_title']; ?></strong><?= wpdm_valueof($info, 'license/info/name') ? '  &mdash; ' . wpdm_valueof($info, 'license/info/name') . ' License' : '' ?></td>
+                <td align="left"><strong><?php echo $info['product_name']; ?></strong><?= wpdm_valueof($info, 'license/info/name') ? '  &mdash; ' . wpdm_valueof($info, 'license/info/name') . ' License' : '' ?></td>
                 <td align="left"><?php echo wpdmpp_price_format($info['price']); ?></td>
                 <td align="left"><?php echo $info['quantity']; ?></td>
                 <td align="right" style="width: 150px;text-align: right"><?php echo wpdmpp_price_format($info['price']); ?></td>

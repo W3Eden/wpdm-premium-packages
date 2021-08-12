@@ -93,6 +93,7 @@ class Product
 
     function gigsCost($gigs)
     {
+        $gigs = maybe_unserialize($gigs);
         if(!is_array($gigs)) return 0;
         $gigs_cost_total = 0;
         foreach ($gigs as $gig_id => $gig) {

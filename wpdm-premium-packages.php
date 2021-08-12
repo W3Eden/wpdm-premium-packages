@@ -59,6 +59,9 @@ if (!class_exists('WPDMPremiumPackage')):
          * @var Cart
          */
 	    public $cart;
+        /**
+         * @var Order
+         */
 	    public $order;
 
 		function __construct()

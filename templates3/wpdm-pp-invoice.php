@@ -152,22 +152,17 @@ OTH;
         $prices         = 0;
         $variations     = "";
         $discount       = $discount_r;
-        $_variations    = unserialize($item['variations']);
 
-        foreach ( $_variations as $vr ) {
-            $variations .= "{$vr['name']}: +{$csign_before}" . number_format(floatval($vr['price']), 2) . $csign_after;
-            $prices     += number_format(floatval($vr['price']), 2);
-        }
 
-        $itotal         = number_format(((($item['price'] + $prices) * $item['quantity']) - $discount - $item['coupon_discount']), 2, ".", "");
+        $itotal         = WPDMPP()->order->itemCost($item);
         $total          += $itotal;
         $order_item     = "";
         $discount       = number_format(floatval($discount), 2);
         $item['price']  = number_format($item['price'], 2);
-
+        $item_info = WPDMPP()->cart->itemInfo($item, false);
         $_ohtml .= <<<ITEM
                     <tr class="item">
-                        <td>{$ditem->post_title} <br> {$variations}</td>
+                        <td>{$item['product_name']} <br> {$item_info}</td>
                         <td>{$item['quantity']}</td>
                         <td class="text-right">{$csign_before}{$item['price']}{$csign_after}</td>
                         <td class="text-right">{$csign_before}{$item['coupon_discount']}{$csign_after}</td>
@@ -215,7 +210,7 @@ CINF;
 <div class="container-fluid">
  <br/>
     <div class="row frow">
-        <div class="col-xs-<?php echo isset($_GET['renew']) ? 4 : 6; ?>">
+        <div class="col-xs-5">
             <div class="panel panel-default"><div class="panel-heading">
                     <?php if($_GET['wpdminvoice'] != 'pdf'){ ?>
                     <button class="btn btn-primary btn-xs pull-right" id="btn-print" type="button" onclick="window.print();"><i class="fa fa-print"></i> <?php _e('Print Invoice','wpdm-premium-packages'); ?></button>
@@ -227,26 +222,39 @@ CINF;
                 </div>
             </div>
         </div>
-        <div class="col-xs-<?php echo isset($_GET['renew']) ? 4 : 6; ?> text-right">
-            <div class="panel panel-default"><div class="panel-heading">
-                    <strong><?php _e('Order Date','wpdm-premium-packages'); ?></strong>
+        <div class="col-xs-7">
+            <div class="row">
+                <div class="col-xs-<?php echo isset($_GET['renew']) ? 4 : 6; ?> text-right">
+                    <div class="panel panel-default"><div class="panel-heading">
+                            <strong><?php _e('Order Date','wpdm-premium-packages'); ?></strong>
+                        </div>
+                        <div class="panel-body">
+                            <?php echo date(get_option('date_format'),$order->date); ?>
+                        </div>
+                    </div>
                 </div>
-                <div class="panel-body">
-                    <?php echo date(get_option('date_format'),$order->date); ?>
+                <?php if(isset($_GET['renew'])){ ?>
+                    <div class="col-xs-4 text-right">
+                        <div class="panel panel-default"><div class="panel-heading">
+                                <strong><?php _e('Order Renewed On','wpdm-premium-packages'); ?></strong>
+                            </div>
+                            <div class="panel-body">
+                                <?php echo date(get_option('date_format'),(int)$_GET['renew']); ?>
+                            </div>
+                        </div>
+                    </div>
+                <?php } ?>
+                <div class="col-xs-<?php echo isset($_GET['renew']) ? 4 : 6; ?> text-right">
+                    <div class="panel panel-default"><div class="panel-heading">
+                            <strong><?php _e('Invoice Date','wpdm-premium-packages'); ?></strong>
+                        </div>
+                        <div class="panel-body">
+                            <?php echo date(get_option('date_format'),time()); ?>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <?php if(isset($_GET['renew'])){ ?>
-        <div class="col-xs-4 text-right">
-            <div class="panel panel-default"><div class="panel-heading">
-                    <strong><?php _e('Order Renewed On','wpdm-premium-packages'); ?></strong>
-                </div>
-                <div class="panel-body">
-                    <?php echo date(get_option('date_format'),(int)$_GET['renew']); ?>
-                </div>
-            </div>
-        </div>
-    <?php } ?>
 
     </div>
 

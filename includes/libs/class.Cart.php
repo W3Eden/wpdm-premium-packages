@@ -82,6 +82,7 @@ class Cart
      */
     private function processExtraGigs($product_id, $selected_gig_ids)
     {
+        if(!is_array($selected_gig_ids)) return ['found_gigs' => [], 'gigs_cost_total' => 0];
         $extra_gigs = get_post_meta($product_id, "__wpdm_variation", true);
         $found_gigs = [];
         $gigs_cost_total = 0;
