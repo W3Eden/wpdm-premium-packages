@@ -10,9 +10,7 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly
 }
-$current_user = wp_get_current_user();
 $download_button_label = esc_attr__( 'Download', 'download-manager' );
-
     if(\WPDM\__\Session::get('wpdm_global_msg_success')){
         echo "<div class='alert alert-success'>".\WPDM\__\Session::get('wpdm_global_msg_success')."</div>";
         \WPDM\__\Session::clear('wpdm_global_msg_success');
@@ -25,8 +23,8 @@ $download_button_label = esc_attr__( 'Download', 'download-manager' );
 
     <?php do_action("wpdmpp_before_order_details", $order); ?>
 
-    <div class="card card-default card-purchases dashboard-card mb-3">
-        <div class="card-header">
+    <div class="panel panel-default panel-purchases dashboard-panel mb-3">
+        <div class="panel-heading">
             <?php if ( $order->order_status == 'Completed' ) { //Show invoice button ?>
                 <span class="pull-right btn-group">
                     <button id="od-fullwidth-view" class="btn btn-xs btn-primary ttip hidden-xs" title="Toggle Full-Width"><i class="fa fa-arrows-alt-h"></i></button>
@@ -45,7 +43,7 @@ $download_button_label = esc_attr__( 'Download', 'download-manager' );
                 <a href="<?php echo $link; ?>"><?php _e("All Orders","wpdm-premium-packages"); ?></a>&nbsp;<i class="fa fa-angle-double-right"></i>&nbsp;<?php echo $order->title; ?>
             <?php } ?>
         </div>
-        <div class="card-body1">
+        <div class="panel-body1">
             <table class="table wpdm-table-clean" style="margin:0">
                 <thead>
                 <tr>
@@ -68,15 +66,28 @@ $download_button_label = esc_attr__( 'Download', 'download-manager' );
                 </thead>
                 <?php
                 $total = 0;
-                $cart_items = maybe_unserialize($order->cart_data);
 
                 foreach ($items as $item) {
                     $ditem = get_post($item['pid']);
 
+                    if ( ! is_object($ditem) || get_post_type($item['pid']) != 'wpdmpro' ) {
+                        $ditem              = new stdClass();
+                        $ditem->ID          = 0;
+                        $ditem->post_title  = "[Item Deleted]";
+                    }
+
+                    $meta           = get_post_meta($ditem->ID, 'wpdmpp_list_opts', true);
+                    $price          = $item['price'] * $item['quantity'];
                     $discount_r     = $item['role_discount'];
                     $prices         = 0;
                     $variations     = "";
                     $discount       = $discount_r;
+                    $_variations    = unserialize($item['variations']);
+
+                    foreach ($_variations as $vr) {
+                        $variations .= "{$vr['name']}: +{$csign_before}" . number_format(floatval($vr['price']), 2) . $csign_after;
+                        $prices     += number_format(floatval($vr['price']), 2);
+                    }
 
                     $itotal         = number_format(((($item['price'] + $prices) * $item['quantity']) - $discount - $item['coupon_discount']), 2, ".", "");
                     $total          += $itotal;
@@ -89,8 +100,8 @@ $download_button_label = esc_attr__( 'Download', 'download-manager' );
                     $license = isset($license['info'], $license['info']['name'])?'<span class="ttip color-purple" title="'.esc_html($license['info']['description']).'">'.sprintf(__("%s License","wpdm-premium-packages"), $license['info']['name']).'</span>':'';
 
 
-
-                        if (get_post_meta($item['pid'], '__wpdm_enable_license_key', true) == 1 && $order->order_status == 'Completed') {
+                    if ($order->order_status == 'Completed') {
+                        if (get_post_meta($item['pid'], '__wpdm_enable_license_key', true) == 1) {
                             $licenseg = <<<LIC
 <a id="lic_{$item['pid']}_{$order->order_id}_btn" onclick="return getkey('{$item['pid']}','{$order->order_id}', '#'+this.id);" class="btn btn-primary btn-xs" data-placement="top" data-toggle="popover" href="#"><i class="fa fa-key white"></i></a>
 LIC;
@@ -124,13 +135,10 @@ LIC;
                             }
                         }
 
-
-                        if(is_array($cfiles) && count($cfiles) > 0)
+                        if(is_array($files) && count($cfiles) > 0)
                             $files = $cfiles;
 
-                        if(!is_array($files)) $files = [];
-
-                        if (count($files) > 1 && $order->order_status == 'Completed') {
+                        if (is_array($files) && count($files) > 1 && $order->order_status == 'Completed') {
                             $index = 0;
 
                             foreach ($files as $ind => $ff) {
@@ -143,55 +151,63 @@ LIC;
                         }
                         $discount = number_format(floatval($discount), 2);
                         $item['price'] = number_format($item['price'], 2);
-
-
                         ?>
 
                         <tr class="item">
-                        <td>
-                            <div class="media">
-                                <div class="mr-3">
-                                    <?php WPDMPP()->cart->itemThumb($item, true, ['style' => 'width: 38px']) ?>
-                                </div>
-                                <div class="media-body">
-                                    <div><strong><?php WPDMPP()->cart->itemLink($item) ?></strong></div><?php WPDMPP()->cart->itemInfo($item); ?>
-                                </div>
-                            </div>
-                        </td>
+                        <td><div><strong><a target="_blank" href="<?php echo get_permalink($ditem->ID); ?>"><?php echo $ditem->post_title; ?></a></strong></div><div><?php echo $variations; ?></div><div class="color-purple"><?php echo $license; ?></div></td>
                         <td class="hidden-xs"><?php echo $item['quantity']; ?></td>
-                        <td class="hidden-xs"><?php echo wpdmpp_price_format($item['price'], true, true); ?></td>
+                        <td class="hidden-xs"><?php echo $csign_before.$item['price'].$csign_after; ?></td>
                         <?php if($coupon_discount > 0){ ?>
-                            <td class="hidden-xs"><?php echo wpdmpp_price_format($item['coupon_discount'], true, true); ?></td>
+                            <td class="hidden-xs"><?php echo $csign_before.$item['coupon_discount'].$csign_after; ?></td>
                         <?php }
                         if($role_discount > 0){
                             ?>
-                            <td class="hidden-xs"><?php echo wpdmpp_price_format($discount, true, true); ?></td>
+                            <td class="hidden-xs"><?php echo $csign_before.$discount.$csign_after; ?></td>
                         <?php } ?>
                         <td id="lic_<?php echo $item['pid'].'_'.$order->order_id; ?>" ><?php echo $licenseg; ?></td>
-                        <td class='text-right' align='right'><?php echo WPDMPP()->order->itemCost($item); ?></td>
+                        <td class='text-right' align='right'><?php echo $csign_before.$itotal.$csign_after; ?></td>
 
-                    <?php
+                    <?php } else {
+
+                        $discount = number_format(floatval($discount), 2);
+                        $item['price'] = number_format($item['price'], 2);
+
+                        ?>
+                        <tr class="item">
+                        <td><?php echo $ditem->post_title.'<br>'.$variations; ?></td>
+                        <td class="hidden-xs"><?php echo $item['quantity']; ?></td>
+                        <td class="hidden-xs"><?php echo $csign_before.$item['price'].$csign_after; ?></td>
+                        <?php if($coupon_discount > 0){ ?>
+                            <td class="hidden-xs"><?php echo $csign_before.$item['coupon_discount'].$csign_after; ?></td>
+                        <?php } ?>
+                        <?php if($role_discount > 0){ ?>
+                            <td class="hidden-xs"><?php echo $csign_before.$discount.$csign_after; ?></td>
+                        <?php } ?>
+                        <td>&mdash;</td>
+                        <td class='text-right' align='right'><?php echo $csign_before.$itotal.$csign_after; ?></td>
+                        <?php
+                    }
 
                     if ($order->order_status == 'Completed') {
 
                         $show_download_button = (
-                                //When there are multiple files and multi-file download is not disabled
-                                (is_array($files) && count($files) > 1 && !(int)get_wpdmpp_option('disable_multi_file_download', 0))
-                                // Or when there is only one file
-                                || ( is_array($files) && count($files) === 1 )
+                            //When there are multiple files and multi-file download is not disabled
+                            (is_array($files) && count($files) > 1 && !(int)get_wpdmpp_option('disable_multi_file_download', 0))
+                            // Or when there is only one file
+                            || count($files) === 1
                         );
 
                         $spec = "";
                         if (is_array($files) && count($files) > 1)
                             $spec = <<<SPEC
-<a class="btn btn-xs btn-success btn-group-item" href="#" data-toggle="modal" data-target="#dpop" onclick="jQuery('#dpop .modal-body').html(jQuery('#indvd-{$ditem->ID}').html());">{$download_button_label}</a></div><div  id="indvd-{$ditem->ID}" style="display:none;"><ul class='list-group list-group-flush m-0'>{$indf}</ul>
+<a class="btn btn-xs btn-success btn-group-item" href="#" data-toggle="modal" data-target="#dpop" onclick="jQuery('#dpop .modal-body').html(jQuery('#indvd-{$ditem->ID}').html());"><i class="fa fa-list"></i></a></div><div  id="indvd-{$ditem->ID}" style="display:none;"><ul class='list-group list-group-flush m-0'>{$indf}</ul>
 SPEC;
                         ?>
 
                         <td class='text-right' align='right'>
                             <div class="btn-group">
                                 <?php if ($show_download_button){ ?>
-                                <a href="<?php echo $download_link; ?>" class="btn btn-xs btn-success btn-group-item"><i class="fa fa-arrow-alt-circle-down white"></i> <?=$download_button_label ?></a>
+                                    <a href="<?php echo $download_link; ?>" class="btn btn-xs btn-success btn-group-item"><i class="fa fa-arrow-alt-circle-down white"></i> <?=$download_button_label ?></a>
                                 <?php } ?>
                                 <?php echo $spec; ?>
                             </div>
@@ -253,7 +269,7 @@ SPEC;
             </table>
         </div>
         <?php if(isset($wpdmpp_settings['auto_renew']) && $wpdmpp_settings['auto_renew'] == 1 && $order->order_status == 'Completed'){ ?>
-            <div class="card-footer">
+            <div class="panel-footer">
                 <div class="row">
                     <div class="col-md-9">
                         Auto Renew <?php echo $order->auto_renew == 1?'<span id="csstatus" class="badge badge-success">Active</span>':'<span class="badge badge-danger">Inactive</span>'; ?>
@@ -312,7 +328,7 @@ SPEC;
 
 
 
-            <div class="card-footer border-top-0">
+            <div class="panel-footer border-top-0">
                 <strong><?php _e("Order Status", "wpdm-premium-packages"); ?> : <span class='text-primary'><?php echo $order->order_status; ?></span></strong>&nbsp;&nbsp;
             </div>
 
@@ -330,12 +346,12 @@ SPEC;
         $homeurl = home_url('/');
     ?>
 
-    <div class="card p-3 mb-3 card-renew"  id="proceed_<?php echo $order->order_id; ?>">
+    <div class="panel  panel-default p-3 mb-3 panel-renew"  id="proceed_<?php echo $order->order_id; ?>">
          <div class="media">
-             <div class="media-body" style="line-height: 34px"><?php echo $vdlink; ?></div>
-             <div class="ml-3">
+             <div class="pull-right">
                  <a class='btn btn-success white' onclick="return proceed2payment_<?php echo $order->order_id; ?>(this)" href="#"><b><?php echo $pnow; ?></b></a>
              </div>
+             <div class="media-body" style="line-height: 34px"><?php echo $vdlink; ?></div>
          </div>
     </div>
         <script>
@@ -353,25 +369,25 @@ SPEC;
 
     <div class="row">
         <div class="col-md-4">
-            <div class="card">
-                <div class="card-header bg-light"><?php _e('Order Date', 'wpdm-premium-packages'); ?></div>
-                <div class="card-body"><?php echo wp_date(get_option('date_format')." ".get_option('time_format'), $order->date); ?></div>
+            <div class="panel panel-default">
+                <div class="panel-heading bg-light"><?php _e('Order Date', 'wpdm-premium-packages'); ?></div>
+                <div class="panel-body"><?php echo wp_date(get_option('date_format')." ".get_option('time_format'), $order->date); ?></div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card">
-                <div class="card-header bg-light"><?php _e('Payment Method', 'wpdm-premium-packages'); ?></div>
-                <div class="card-body"><?php echo $order->payment_method; ?></div>
+            <div class="panel panel-default">
+                <div class="panel-heading bg-light"><?php _e('Payment Method', 'wpdm-premium-packages'); ?></div>
+                <div class="panel-body"><?php echo $order->payment_method; ?></div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card">
-                <div class="card-header bg-light"><?php _e('Auto Renew', 'wpdm-premium-packages'); ?></div>
+            <div class="panel panel-default">
+                <div class="panel-heading bg-light"><?php _e('Auto Renew', 'wpdm-premium-packages'); ?></div>
                 <?php
                 $_renew_cycle =  isset($renew_cycle[$order->order_id])?sprintf(__("%s cycle", 'wpdm-premium-packages'), wpdmpp_ordinal(($renew_cycle[$order->order_id])+1)):__('1st cycle', 'wpdm-premium-packages');
                 $auto_reenew = $order->auto_renew==0?'Inactive':'Active';
                 ?>
-                <div class="card-body"><?php echo $auto_reenew." / ".$_renew_cycle; ?></div>
+                <div class="panel-body"><?php echo $auto_reenew." / ".$_renew_cycle; ?></div>
             </div>
         </div>
 

@@ -746,20 +746,7 @@ function wpdmpp_clear_user_cart($uid){
  */
 function wpdmpp_get_cart_data(){
 
-    $cart_id = wpdmpp_cart_id();
-
-    $cart_data = maybe_unserialize(get_option($cart_id));
-
-    //adjust cart id after user log in
-    if( is_user_logged_in() && !$cart_data ){
-        $cart_id = md5(wpdm_get_client_ip())."_cart";
-        $cart_data = maybe_unserialize(get_option($cart_id));
-        delete_option($cart_id);
-        $cart_id = get_current_user_id()."_cart";
-        update_option($cart_id, $cart_data, false);
-    }
-
-    return $cart_data ? $cart_data : array();
+    return WPDMPP()->cart->getItems();
 }
 
 /**
@@ -804,7 +791,7 @@ function wpdmpp_calculate_discount(){
     $currency_sign          = wpdmpp_currency_sign();
     $currency_sign_before   = wpdmpp_currency_sign_position() == 'before' ? $currency_sign : '';
     $currency_sign_after    = wpdmpp_currency_sign_position() == 'after' ? $currency_sign : '';
-
+    //wpdmprecho($cart_items);
     if(is_array($cart_items)){
         foreach($cart_items as $pid => $item)    {
 
@@ -865,7 +852,7 @@ function wpdmpp_calculate_discount(){
 
             if(!isset($item['multi'])){
                 $cart_items[$pid]['prices'] = $prices;
-                $cart_items[$pid]['variations'] = $svariation;
+                //$cart_items[$pid]['variations'] = $svariation;
                 if($coupon_discount) {
                     $cart_items[$pid]['coupon_amount'] =  $coupon_discount;
                     $cart_items[$pid]['discount_amount'] = (((($item['price']+$prices)*$item['quantity'] ) - $coupon_discount ) * $role_discount)/100 ;
@@ -884,7 +871,7 @@ function wpdmpp_calculate_discount(){
                 }
 
             }
-            elseif(isset($item['multi']) && $item['multi'] == 1) {
+            /*elseif(isset($item['multi']) && $item['multi'] == 1) {
 
                 foreach ($lprices as $key => $value):
                     if(!isset($cart_items[$pid]['item']) || !is_array($cart_items[$pid]['item'])) $cart_items[$pid]['item'] = array();
@@ -906,7 +893,7 @@ function wpdmpp_calculate_discount(){
                     }
 
                 endforeach;
-            }
+            }*/
         }
         wpdmpp_update_cart_data($cart_items);
     }
@@ -949,10 +936,16 @@ function wpdmpp_get_cart_tax(){
 }
 
 function wpdmpp_get_cart_subtotal(){
+
+    return WPDMPP()->cart->cartTotal(false, false);
+
+    /*
+
     $cart_items = wpdmpp_get_cart_items();
 
     $total = 0;
     if(is_array($cart_items)){
+        //wpdmdd($cart_items);
         foreach($cart_items as $pid => $item){
             if(isset($item['item'])){
                 foreach ($item['item'] as $key => $val){
@@ -967,7 +960,7 @@ function wpdmpp_get_cart_subtotal(){
                 $role_discount = isset($item['discount_amount']) ? $item['discount_amount']: 0;
                 $coupon_discount = isset($item['coupon_amount']) ? $item['coupon_amount']: 0;
                 //$total += (($item['price'] + $item['prices'] - $role_discount - $coupon_discount)*$item['quantity']);
-                $total += ( ( $item['price'] + $item['prices'] - $role_discount ) * $item['quantity'] - $coupon_discount );
+                $total += ( ( (double)wpdm_valueof($item, 'price') + wpdm_valueof($item, 'prices') - $role_discount ) * $item['quantity'] - $coupon_discount );
             }
         }
     }
@@ -975,6 +968,7 @@ function wpdmpp_get_cart_subtotal(){
     $total = apply_filters('wpdmpp_cart_subtotal',$total);
 
     return number_format($total, 2, ".", "");
+    */
 }
 
 /**
@@ -1107,7 +1101,6 @@ function wpdmpp_calculate_tax2(){
 //tax calculation
 function wpdmpp_tax_rate($country, $state = ''){
 
-    $settings = maybe_unserialize(get_option('_wpdmpp_settings'));
     $txrate = 0;
     if(is_array(get_wpdmpp_option('tax/tax_rate'))){
         foreach(get_wpdmpp_option('tax/tax_rate') as $key => $rate){

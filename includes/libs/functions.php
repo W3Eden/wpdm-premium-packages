@@ -118,7 +118,7 @@ function wpdmpp_get_licenses()
 
 }
 
-function get_wpdmpp_option($name, $default = '')
+function get_wpdmpp_option($name, $default = '', $validate = null)
 {
     global $wpdmpp_settings;
 
@@ -127,13 +127,17 @@ function get_wpdmpp_option($name, $default = '')
     if (!is_array($wpdmpp_settings)) return $default;
 
     if (count($name) == 1)
-        return isset($wpdmpp_settings[$name[0]]) ? $wpdmpp_settings[$name[0]] : $default;
+        $value = isset($wpdmpp_settings[$name[0]]) ? $wpdmpp_settings[$name[0]] : $default;
     else if (count($name) == 2)
-        return isset($wpdmpp_settings[$name[0]], $wpdmpp_settings[$name[0]][$name[1]]) ? $wpdmpp_settings[$name[0]][$name[1]] : $default;
+        $value = isset($wpdmpp_settings[$name[0]], $wpdmpp_settings[$name[0]][$name[1]]) ? $wpdmpp_settings[$name[0]][$name[1]] : $default;
     else if (count($name) == 3)
-        return isset($wpdmpp_settings[$name[0]], $wpdmpp_settings[$name[0]][$name[1]], $wpdmpp_settings[$name[0]][$name[1]][$name[2]]) ? $wpdmpp_settings[$name[0]][$name[1]][$name[2]] : $default;
+        $value = isset($wpdmpp_settings[$name[0]], $wpdmpp_settings[$name[0]][$name[1]], $wpdmpp_settings[$name[0]][$name[1]][$name[2]]) ? $wpdmpp_settings[$name[0]][$name[1]][$name[2]] : $default;
     else
-        return $default;
+        $value = $default;
+    if($validate !== null)
+        $value = wpdm_sanitize_var($value, $validate);
+
+    return $value;
 }
 
 function wpdmpp_countries()

@@ -7,6 +7,7 @@ use WPDM\__\__;
 use WPDM\__\Email;
 use WPDM\__\__MailUI;
 use WPDM\__\Session;
+use WPDMPP\Product;
 use WPDMPP\WPDMPremiumPackage;
 
 if (!defined('ABSPATH')) {
@@ -461,105 +462,20 @@ class Order
         $wpdb->query("delete from {$wpdb->prefix}ahm_order_items where oid='$id'");
         if (!empty($cart_data))
             foreach ($cart_data as $pid => $cdt) {
-                $vrts = [];
 
                 $product_type = wpdm_valueof($cdt, 'product_type');
 
-                if($product_type !== 'dynamic') {
-                    $variation = get_post_meta($pid, "__wpdm_variation", true);
-                    if (is_array($variation)) {
-                        foreach ($variation as $key => $value) {
-                            foreach ($value as $optionkey => $optionvalue) {
-                                if ($optionkey != "vname") {
-                                    if (isset($cdt['variation']) && is_array($cdt['variation'])) {
-                                        //echo "adfadf";
-                                        foreach ($cdt['variation'] as $var) {
-                                            //echo  $optionkey;
-                                            if ($var == $optionkey) {
-                                                $vrts[$optionkey] = array('name' => $optionvalue['option_name'], 'price' => $optionvalue['option_price']);
-
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
                 $coupon = isset($cdt['coupon']) ? $cdt['coupon'] : '';
                 $coupon_amount = isset($cdt['coupon_amount']) ? $cdt['coupon_amount'] : 0;
                 $role_disc = $cdt['discount_amount'];
                 $site_comm = 0;
+                $product_name = wpdm_valueof($cdt, 'product_name');
                 //$sid = Seller ID
                 $sid = $product_type === 'dynamic' ? 0 : get_post($pid)->post_author;
-                $product_name = $product_type === 'dynamic' ? wpdm_valueof($cdt, 'product_name') : wpdm_valueof($cdt, 'post_title');
                 //$cid = Customer ID
                 $cid = $o->uid;
-                $license = isset($cdt['license']) ? maybe_serialize($cdt['license']) : '';
-                $wpdb->insert("{$wpdb->prefix}ahm_order_items", array('oid' => $id, 'pid' => $pid, 'product_type' => $product_type, 'product_name' => $product_name, 'license' => $license, 'quantity' => $cdt['quantity'], 'price' => $cdt['price'], 'variations' => serialize($vrts), 'coupon' => $coupon, 'coupon_discount' => floatval($coupon_amount), 'role_discount' => $role_disc, 'site_commission' => $site_comm, 'date' => date("Y-m-d H:m:s", $time), 'year' => date('Y'), 'month' => date('m'), 'day' => date('d'), 'sid' => $sid, 'cid' => $cid));
+                $wpdb->insert("{$wpdb->prefix}ahm_order_items", array('oid' => $id, 'pid' => $pid, 'product_type' => $product_type, 'product_name' => $product_name, 'license' => serialize($cdt['license']), 'quantity' => $cdt['quantity'], 'price' => $cdt['price'], 'extra_gigs' => serialize($cdt['extra_gigs']), 'coupon' => $coupon, 'coupon_discount' => floatval($coupon_amount), 'role_discount' => $role_disc, 'site_commission' => $site_comm, 'date' => date("Y-m-d H:m:s", $time), 'year' => date('Y'), 'month' => date('m'), 'day' => date('d'), 'sid' => $sid, 'cid' => $cid));
 
-                /*
-                if(!isset($cdt['multi']) || $cdt['multi'] == 0) {
-                    if (is_array($variation)) {
-                        foreach ($variation as $key => $value) {
-                            foreach ($value as $optionkey => $optionvalue) {
-                                if ($optionkey != "vname") {
-                                    if (isset($cdt['variation']) && is_array($cdt['variation'])) {
-                                        //echo "adfadf";
-                                        foreach ($cdt['variation'] as $var) {
-                                            //echo  $optionkey;
-                                            if ($var == $optionkey) {
-                                                $vrts[$optionkey] = array('name' => $optionvalue['option_name'], 'price' => $optionvalue['option_price']);
-
-                                            }
-                                        }
-
-
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    $coupon_amount = isset($cdt['coupon_amount']) ? $cdt['coupon_amount'] : 0;
-                    $role_disc = $cdt['discount_amount'];
-                    $site_comm = 0;
-                    $sid = get_post($pid)->post_author;
-                    $cid = $o->uid;
-                    $license = isset($cdt['license'])?maybe_serialize($cdt['license']):'';
-                    $wpdb->insert("{$wpdb->prefix}ahm_order_items", array('oid' => $id, 'pid' => $pid, 'license' => $license, 'quantity' => $cdt['quantity'], 'price' => $cdt['price'], 'variations' => serialize($vrts), 'coupon' => $coupon, 'coupon_discount' => floatval($coupon_amount), 'role_discount' => $role_disc, 'site_commission' => $site_comm, 'date' => date("Y-m-d H:m:s", $time), 'year' => date('Y'), 'month' => date('m'), 'day' => date('d'), 'sid' => $sid, 'cid' => $cid));
-                } else{
-                    foreach($cdt['item'] as $mcdt) {
-                        $vrts = array();
-                        $quantity = (int)$mcdt['quantity']>0?(int)$mcdt['quantity']:1;
-                        $role_discount = isset( $mcdt['discount_amount'] ) ? $mcdt['discount_amount'] : 0;
-                        $coupon_amount = isset( $mcdt['coupon_amount'] ) ? $mcdt['coupon_amount'] : 0;
-                        if (is_array($variation)) {
-                            foreach ($variation as $key => $value) {
-                                foreach ($value as $optionkey => $optionvalue) {
-                                    if ($optionkey != "vname") {
-                                        if (isset($mcdt['variation']) && is_array($mcdt['variation'])) {
-                                            //echo "adfadf";
-                                            foreach ($mcdt['variation'] as $var) {
-                                                //echo  $optionkey;
-                                                if ($var == $optionkey) {
-                                                    $vrts[$optionkey] = array('name' => $optionvalue['option_name'], 'price' => $optionvalue['option_price']);
-
-                                                }
-                                            }
-
-
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        $coupon = isset($coupon) ? $coupon : '';
-                        $coupon_amount = isset($coupon_amount) ? $coupon_amount : 0;
-                        $license = isset($cdt['license'])?maybe_serialize($cdt['license']):'';
-                        $wpdb->insert("{$wpdb->prefix}ahm_order_items", array('oid' => $id, 'pid' => $pid, 'license' => $license, 'quantity' => $quantity, 'price' => $cdt['price'], 'variations' => serialize($vrts), 'coupon' => $coupon, 'coupon_discount' => floatval($coupon_amount), 'role_discount' => floatval($role_discount)));
-                    }
-                }
-                //*/
             }
     }
 
@@ -568,6 +484,21 @@ class Order
         global $wpdb;
         $items = $wpdb->get_results("select * from {$wpdb->prefix}ahm_order_items where oid='{$id}'", ARRAY_A);
         return is_array($items) ? $items : array();
+    }
+
+    /**
+     * @param $item
+     * @param false $format
+     * @return double|string
+     */
+    function itemCost($item, $format = false)
+    {
+        $product = new Product($item['pid'], $item['product_type']);
+        $gigs_cost = $product->gigsCost($item['extra_gigs']);
+        $cost = $item['price'] + $gigs_cost;
+        $role_discount_percent = $item['role_discount'];
+        $cost -= ($cost*$role_discount_percent/100);
+        return wpdmpp_price_format($cost, $format, $format) ;
     }
 
     function calcOrderTotal($oid)

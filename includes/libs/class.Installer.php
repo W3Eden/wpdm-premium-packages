@@ -68,7 +68,7 @@ if( ! class_exists( '\WPDMPP\Libs\Installer' ) ):
   `pid` varchar(255) NOT NULL,
   `product_name` text DEFAULT NULL,
   `license` text,
-  `variations` text NOT NULL,
+  `extra_gigs` text NOT NULL,
   `quantity` int(11) NOT NULL,
   `price` double NOT NULL,
   `status` int(11) NOT NULL,
@@ -445,14 +445,15 @@ if( ! class_exists( '\WPDMPP\Libs\Installer' ) ):
 
             $installer->changeColumn('ahm_coupons', 'ID', 'ID', 'INT(11) NOT NULL AUTO_INCREMENT');
             $installer->addColumn('ahm_coupons', 'used', 'INT NOT NULL');
-
+            //ALTER TABLE `wp_ahm_order_items` CHANGE `variations` `extra_gigs` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;
             $installer->changeColumn('ahm_order_items', 'pid', 'pid', 'VARCHAR(50) NOT NULL');
+            $installer->changeColumn('ahm_order_items', 'variations', 'extra_gigs', 'TEXT NOT NULL');
             $installer->addColumn('ahm_order_items', 'product_type', ' VARCHAR( 255 ) NULL AFTER `pid`');
             $installer->addColumn('ahm_order_items', 'product_name', ' TEXT NULL AFTER `pid`');
             $installer->addColumn('ahm_order_items', 'coupon', 'VARCHAR( 255 ) NULL');
             $installer->addColumn('ahm_order_items', 'coupon_amount', 'FLOAT NULL');
             $installer->addColumn('ahm_order_items', 'site_commission', "FLOAT NOT NULL DEFAULT '0'");
-            $installer->addColumn('ahm_order_items', 'variations', "TEXT NOT NULL AFTER `pid`");
+            $installer->addColumn('ahm_order_items', 'extra_gigs', "TEXT NOT NULL AFTER `pid`");
             $installer->addColumn('ahm_order_items', 'role_discount', "FLOAT NOT NULL");
             $installer->addColumn('ahm_order_items', 'date', "DATE NOT NULL");
             $installer->addColumn('ahm_order_items', 'year', "INT NOT NULL");

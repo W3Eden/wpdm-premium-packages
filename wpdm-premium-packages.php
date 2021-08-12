@@ -59,6 +59,7 @@ if (!class_exists('WPDMPremiumPackage')):
          * @var Cart
          */
 	    public $cart;
+	    public $order;
 
 		function __construct()
 		{
@@ -243,10 +244,13 @@ if (!class_exists('WPDMPremiumPackage')):
 			include(dirname(__FILE__) . "/includes/libs/class.User.php");
 			include(dirname(__FILE__) . "/includes/libs/class.LicenseManager.php");
 
+			include(dirname(__FILE__) . "/includes/libs/Product.php");
 			include(dirname(__FILE__) . "/includes/libs/class.Cart.php");
             $this->cart = new Cart();
 
 			include(dirname(__FILE__) . "/includes/libs/class.Order.php");
+			$this->order = new Order();
+
 			include(dirname(__FILE__) . "/includes/libs/class.Payment.php");
 			include(dirname(__FILE__) . "/includes/libs/class.CustomActions.php");
 			include(dirname(__FILE__) . "/includes/libs/class.CustomColumns.php");
@@ -275,20 +279,23 @@ if (!class_exists('WPDMPremiumPackage')):
 		}
 
 		function calculate_tax(){
-		    $cartsubtotal = wpdmpp_get_cart_subtotal();
-		    $cart_id = wpdmpp_cart_id();
-		    $coupon = get_option($cart_id."_coupon", []);
-		    $cartdiscount = isset($coupon['discount'])?$coupon['discount']:0;
+
+		    $cartsubtotal = WPDMPP()->cart->cartTotal();
+		    $cartdiscount = WPDMPP()->cart->couponDiscount();
 		    $cartsubtotal -= $cartdiscount;
-		    $tax_total = wpdmpp_calculate_tax2();
-		    $total_including_tax = $cartsubtotal + $tax_total;
+
+		    //$tax_total = wpdmpp_calculate_tax2();
+
+            $tax_total = WPDMPP()->cart->getTax($cartsubtotal, wpdm_query_var('country', 'txt'), wpdm_query_var('state', 'txt'));
+
+            $total_including_tax = $cartsubtotal + $tax_total;
 
             $updates = [ 'tax' => wpdmpp_price_format($tax_total), 'total' => wpdmpp_price_format($total_including_tax) , 'subtotal' => $cartsubtotal, 'dis' => $cartdiscount ];
 
             Session::set('tax',  $tax_total);
             Session::set('subtotal',  $cartsubtotal);
 
-            die( json_encode($updates) );
+            wp_send_json($updates);
 		}
 
 

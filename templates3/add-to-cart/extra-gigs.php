@@ -57,7 +57,7 @@ if( is_array($variation) && $price_variation){
                 else
                     $vari = ( intval($optionvalue['option_price']) != 0 ) ? " ( + ".number_format($optionvalue['option_price'],2,".","")."{$currency_sign} )" : "";
 
-                $gigs_html .='<label data-placement="left" class="d-block ttip" title="'.(isset($optionvalue['option_description'])?esc_attr($optionvalue['option_description']):'').'"><input class="wpdmpp-extra-gig wpdm-'.$vtype.'" type='.$vtype.' '.$cfirst.' data-product-id="'.$product_id.'" data-price="'.number_format($optionvalue['option_price'],2,".","").'" name="extra_gigs['.$vindex.']" class="wpdm-'.$vtype.' wpdmpp-extra-gig wpdmpp-extra-gig-'.$product_id.'"  value="'.$optionkey.'"> '." ".$optionvalue['option_name'].$vari."</label>";
+                $gigs_html .='<label data-placement="left" class="d-block eden-'.$vtype.' ttip" title="'.(isset($optionvalue['option_description'])?esc_attr($optionvalue['option_description']):'').'"><input class="wpdmpp-extra-gig wpdm-'.$vtype.'" type='.$vtype.' '.$cfirst.' data-product-id="'.$product_id.'" data-price="'.number_format($optionvalue['option_price'],2,".","").'" name="variation['.$vindex.']" class="wpdm-'.$vtype.' wpdmpp-extra-gig wpdmpp-extra-gig-'.$product_id.'"  value="'.$optionkey.'"> '." ".$optionvalue['option_name'].$vari."</label>";
 
                 $vcount++;
             }

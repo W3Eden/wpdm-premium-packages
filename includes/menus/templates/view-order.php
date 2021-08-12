@@ -93,21 +93,9 @@ $renews = $wpdb->get_results("select * from {$wpdb->prefix}ahm_order_renews wher
                 $coupon_discount += $item['coupon_discount'];
                 $role_discount += $item['role_discount'];
                 $order_total += (($item['price'] + $item['prices']) * (int)$item['quantity']) - $item['coupon_discount'] - $item['role_discount'];
-                $item['variations'] = maybe_unserialize($item['variations']);
+                $item['extra_gigs'] = maybe_unserialize($item['extra_gigs']);
 
-                $vari = array(); //isset($item['variations']) && !empty($item['variations']) ? implode(', ', $item['variations']) : '';
-                $vari_cost = 0;
-                if(is_array($item['variations'])){
-                    foreach ($item['variations'] as $_variation){
-                        if(is_array($_variation))
-                            $vari[] = $_variation['name'].": +".$currency_sign.$_variation['price'];
-                        else
-                            $vari[] = $_variation;
-                        $vari_cost += (double)$_variation['price'];
-                    }
-                }
-                $vari = implode(", ", $vari);
-                if(!isset($item['post_title'])) $item['post_title'] = '---';
+
                 $item['price'] = (double)$item['price'];
                 //echo "<pre>";print_r($item['quantity']);
 
@@ -115,9 +103,9 @@ $renews = $wpdb->get_results("select * from {$wpdb->prefix}ahm_order_renews wher
                 <tr>
                     <td>
                         <strong><?php WPDMPP()->cart->itemLink($item); ?></strong>
-                        <div style="display: flex">
+                        <div>
                             <?php if ((int)get_post_meta($item['pid'], '__wpdm_enable_license_key', true) === 1) { ?>
-                                <div style="margin-right: 5px">[ <a class="color-success" id="<?php echo "lic_{$item['pid']}_{$order->order_id}_btn"; ?>" onclick="return getkey('<?php echo $item['pid']; ?>','<?php echo $order->order_id; ?>', '#'+this.id);"  data-placement="top" data-toggle="popover" href="#"><i class="fa fa-key color-success"></i></a> ] </div>
+                                <div style="margin-right: 5px;float: left">[ <a class="color-success" id="<?php echo "lic_{$item['pid']}_{$order->order_id}_btn"; ?>" onclick="return getkey('<?php echo $item['pid']; ?>','<?php echo $order->order_id; ?>', '#'+this.id);"  data-placement="top" data-toggle="popover" href="#"><i class="fa fa-key color-success"></i></a> ] </div>
                             <?php } ?>
                             <?php WPDMPP()->cart->itemInfo($item); ?>
                         </div>
@@ -127,7 +115,7 @@ $renews = $wpdb->get_results("select * from {$wpdb->prefix}ahm_order_renews wher
                     <td><?php echo wpdmpp_price_format($item['role_discount'],true, true); ?></td>
                     <td><?php echo isset($item['coupon'])?$item['coupon']:''; ?></td>
                     <td><?php echo wpdmpp_price_format($item['coupon_discount'],true, true); ?></td>
-                    <td class="text-right"><?php echo wpdmpp_price_format((($item['price'] + $item['prices'] + $vari_cost) * $item['quantity']) - $item['role_discount'] - $item['coupon_discount'], true, true); ?></td>
+                    <td class="text-right"><?php echo wpdmpp_price_format(WPDMPP()->order->itemCost($item), true, true); ?></td>
                 </tr>
             <?php
 

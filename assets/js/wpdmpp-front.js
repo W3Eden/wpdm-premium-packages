@@ -30,14 +30,14 @@ jQuery(function ($) {
             }
             else uc++;
         });
-        ps = ps.toFixed(2);
+        ps = parseFloat(ps).toFixed(2);
         var ppc = al == ''?parseFloat($('#price-'+pid).attr('content')):parseFloat($('.license-'+pid+ '[value='+al+']').data('price'));
         if(ps == 0 || uc == 0 || ps > parseFloat(ppc)) ps = ppc.toFixed(2);
         ps += wpdmpp_extra_gigs();
         /*$('.price-'+pid).html(wpdmpp_currency_sign+ps);*/
         $('.price-'+pid).html(wpdmpp_csign_before+ps+wpdmpp_csign_after);
         $('#files_'+pid).val(files);
-        $('#total-price-' + pid).val(ps.toFixed(2));
+        $('#total-price-' + pid).val(parseFloat(ps).toFixed(2));
 
         if(('.__wpdmpp_buy_now_zone_'+pid).length > 0) {
             WPDM.blockUI('.__wpdmpp_buy_now_zone_' + pid);
@@ -67,7 +67,7 @@ jQuery(function ($) {
             else uc++;
         });
 
-        ps = ps.toFixed(2);
+        ps = parseFloat(ps).toFixed(2);
         var ppc = al == ''?parseFloat($('#price-'+pid).attr('content')):parseFloat($('.license-'+pid+ '[value='+al+']').data('price'));
         if(ps == 0 || uc == 0 || ps > parseFloat(ppc)) ps = ppc.toFixed(2);
         ps = parseFloat(wpdmpp_extra_gigs())+parseFloat(ps);
@@ -83,7 +83,7 @@ jQuery(function ($) {
         $('.price-'+pid).html(wpdmpp_csign_before+ps+wpdmpp_csign_after);
         $('#files_'+pid).val(files);
 
-        $('#total-price-' + pid).val(ps.toFixed(2));
+        $('#total-price-' + pid).val(parseFloat(ps).toFixed(2));
 
         if(('.__wpdmpp_buy_now_zone_'+pid).length > 0) {
             WPDM.blockUI('.__wpdmpp_buy_now_zone_' + pid);
@@ -406,8 +406,7 @@ function calculate_tax(){
 
     var state = $('#region').val() != null ? $('#region').val() : $('#region-txt').val();
 
-    $.get(wpdm_url.ajax+'?action=gettax&country='+country+'&state=' + state, function (res) {
-        var tax_info = JSON.parse(res);
+    $.get(wpdm_url.ajax+'?action=gettax&country='+country+'&state=' + state, function (tax_info) {
         $('#wpdmpp_cart_tax').text(tax_info.tax);
         $('#wpdmpp_cart_grand_total').text(tax_info.total);
         $('.cart-total-final').removeClass('hide').removeClass('d-none');
