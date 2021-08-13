@@ -496,8 +496,10 @@ class Order
         $product = new Product($item['pid'], $item['product_type']);
         $gigs_cost = $product->gigsCost($item['extra_gigs']);
         $cost = $item['price'] + $gigs_cost;
+        $cost = $cost * $item['quantity'];
         $role_discount_percent = $item['role_discount'];
         $cost -= ($cost*$role_discount_percent/100);
+        $cost -= $item['coupon_discount'];
         return wpdmpp_price_format($cost, $format, $format) ;
     }
 

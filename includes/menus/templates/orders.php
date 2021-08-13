@@ -284,7 +284,7 @@ foreach ($renews as $renew){
                         $product_name = array();
                         if(is_array($oitems)) {
                             foreach ($oitems as $oitem) {
-                                $product_name[] = $oitem['post_title'];
+                                $product_name[] = wpdm_valueof($oitem, 'product_title', wpdm_valueof($oitem, 'post_title'));
                             }
                         }
                         $product_names = implode(", ", $product_name);

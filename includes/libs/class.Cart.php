@@ -374,8 +374,11 @@ class Cart
     {
         $gigs_cost = $this->gigsCost($item['extra_gigs']);
         $cost = $item['price'] + $gigs_cost;
+        $cost = $cost * $item['quantity'];
         $product = new Product($item['pid'], $item['product_type']);
         $role_discount_percent = $product->getRoleDiscount();
+        $cost -= ($cost*$role_discount_percent/100);
+        $cost -= $item['coupon_discount'];
         $cost -= ($cost*$role_discount_percent/100);
         return wpdmpp_price_format($cost, $format, $format) ;
     }

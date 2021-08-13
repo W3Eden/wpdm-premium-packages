@@ -92,7 +92,8 @@ $renews = $wpdb->get_results("select * from {$wpdb->prefix}ahm_order_renews wher
                 $title = $title?$title:'&mdash; The item is not available anymore &mdash;';
                 $coupon_discount += $item['coupon_discount'];
                 $role_discount += $item['role_discount'];
-                $order_total += (($item['price'] + $item['prices']) * (int)$item['quantity']) - $item['coupon_discount'] - $item['role_discount'];
+                $item_cost = WPDMPP()->order->itemCost($item);
+                $order_total += $item_cost; //(($item['price'] + $item['prices']) * (int)$item['quantity']) - $item['coupon_discount'] - $item['role_discount'];
                 $item['extra_gigs'] = maybe_unserialize($item['extra_gigs']);
 
 
@@ -115,7 +116,7 @@ $renews = $wpdb->get_results("select * from {$wpdb->prefix}ahm_order_renews wher
                     <td><?php echo wpdmpp_price_format($item['role_discount'],true, true); ?></td>
                     <td><?php echo isset($item['coupon'])?$item['coupon']:''; ?></td>
                     <td><?php echo wpdmpp_price_format($item['coupon_discount'],true, true); ?></td>
-                    <td class="text-right"><?php echo wpdmpp_price_format(WPDMPP()->order->itemCost($item), true, true); ?></td>
+                    <td class="text-right"><?php echo wpdmpp_price_format($item_cost, true, true); ?></td>
                 </tr>
             <?php
 
@@ -123,12 +124,16 @@ $renews = $wpdb->get_results("select * from {$wpdb->prefix}ahm_order_renews wher
     endif;
     ?>
     <tr>
+        <td colspan="6" class="text-right"><?php _e('Cart Total', 'wpdm-premium-packages'); ?></td>
+        <td class="text-right"><?php echo wpdmpp_price_format($order_total, true, true); ?></td>
+    </tr>
+    <tr>
         <td colspan="6" class="text-right"><?php _e('Cart Coupon Discount', 'wpdm-premium-packages'); ?></td>
         <td class="text-right">-<?php echo wpdmpp_price_format($order->coupon_discount, true, true); ?></td>
     </tr>
     <tr>
         <td colspan="6" class="text-right"><?php _e('Tax', 'wpdm-premium-packages'); ?></td>
-        <td class="text-right"><?php echo wpdmpp_price_format($order->tax, true, true); ?></td>
+        <td class="text-right">+<?php echo wpdmpp_price_format($order->tax, true, true); ?></td>
     </tr>
     <tr id="refundrow" <?php if((int)$order->refund == 0) echo "style='display:none;'"; ?>>
         <td colspan="6" class="text-right"><?php _e('Refund', 'wpdm-premium-packages'); ?></td>

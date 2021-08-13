@@ -203,8 +203,9 @@ CINF;
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <?php wp_print_styles('wpdmpp-invoice'); ?>
+    <?php \WPDM\__\Apply::googleFont(); ?>
     <?php \WPDM\__\Apply::uiColors(true); ?>
+    <?php wp_print_styles('wpdmpp-invoice'); ?>
 </head>
 <body class="w3eden" onload="window.print();">
 <div class="container-fluid">
@@ -215,7 +216,7 @@ CINF;
                     <?php if($_GET['wpdminvoice'] != 'pdf'){ ?>
                     <button class="btn btn-primary btn-xs pull-right" id="btn-print" type="button" onclick="window.print();"><i class="fa fa-print"></i> <?php _e('Print Invoice','wpdm-premium-packages'); ?></button>
                     <?php } ?>
-                    <strong><?php _e('Invoice No','wpdm-premium-packages'); ?></strong>
+                    <?php _e('Invoice No','wpdm-premium-packages'); ?>
                 </div>
                 <div class="panel-body">
                     <h3 class="text-info invoice-no"><?php echo $order->order_id; ?></h3>
@@ -226,7 +227,7 @@ CINF;
             <div class="row">
                 <div class="col-xs-<?php echo isset($_GET['renew']) ? 4 : 6; ?> text-right">
                     <div class="panel panel-default"><div class="panel-heading">
-                            <strong><?php _e('Order Date','wpdm-premium-packages'); ?></strong>
+                            <?php _e('Order Date','wpdm-premium-packages'); ?>
                         </div>
                         <div class="panel-body">
                             <?php echo date(get_option('date_format'),$order->date); ?>
@@ -236,7 +237,7 @@ CINF;
                 <?php if(isset($_GET['renew'])){ ?>
                     <div class="col-xs-4 text-right">
                         <div class="panel panel-default"><div class="panel-heading">
-                                <strong><?php _e('Order Renewed On','wpdm-premium-packages'); ?></strong>
+                                <?php _e('Order Renewed On','wpdm-premium-packages'); ?>
                             </div>
                             <div class="panel-body">
                                 <?php echo date(get_option('date_format'),(int)$_GET['renew']); ?>
@@ -246,7 +247,7 @@ CINF;
                 <?php } ?>
                 <div class="col-xs-<?php echo isset($_GET['renew']) ? 4 : 6; ?> text-right">
                     <div class="panel panel-default"><div class="panel-heading">
-                            <strong><?php _e('Invoice Date','wpdm-premium-packages'); ?></strong>
+                            <?php _e('Invoice Date','wpdm-premium-packages'); ?>
                         </div>
                         <div class="panel-body">
                             <?php echo date(get_option('date_format'),time()); ?>
@@ -261,7 +262,7 @@ CINF;
     <div class="row">
         <div class="col-xs-6">
             <div class="panel panel-default info-panel">
-                <div class="panel-heading"><strong><?php _e('From:','wpdm-premium-packages'); ?></strong></div>
+                <div class="panel-heading"><?php _e('From:','wpdm-premium-packages'); ?></div>
                 <div class="panel-body">
 
                     <div class="media">
@@ -281,7 +282,7 @@ CINF;
         </div>
         <div class="col-xs-6">
             <div class="panel panel-default info-panel">
-                <div class="panel-heading"><strong><?php _e('To:','wpdm-premium-packages'); ?></strong></div>
+                <div class="panel-heading"><?php _e('To:','wpdm-premium-packages'); ?></div>
                 <div class="panel-body">
                     <?php echo $invoice['client_info']; ?>
                 </div>
@@ -296,7 +297,7 @@ CINF;
     <div class="row">
         <div class="col-xs-6">
             <div class="panel panel-default"><div class="panel-heading">
-                    <strong><?php _e('Payment Method','wpdm-premium-packages'); ?></strong>
+                    <?php _e('Payment Method','wpdm-premium-packages'); ?>
                 </div>
                 <div class="panel-body">
                     <?php echo $order->payment_method; ?>
@@ -306,7 +307,7 @@ CINF;
         <div class="col-xs-6 text-right">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <strong><?php _e('Payment Status','wpdm-premium-packages'); ?></strong>
+                    <?php _e('Payment Status','wpdm-premium-packages'); ?>
                 </div>
                 <div class="panel-body">
                     <?php echo $order->payment_status; ?>

@@ -23,10 +23,9 @@ if ( ! is_user_logged_in() && ! \WPDM\__\Session::get('guest_order') ) {
 } else {
 
     global $wpdb, $current_user;
-    $current_user = wp_get_current_user();
     $settings           = get_option('_wpdmpp_settings');
     $_ohtml             = "";
-    $oid                = sanitize_text_field($_GET['id']);
+    $oid = sanitize_text_field($_GET['id']);
     $order              = new \WPDMPP\Libs\Order();
     $oid                = is_user_logged_in() ? $oid : \WPDM\__\Session::get('guest_order');
     $order              = $order->GetOrder($oid);
@@ -55,7 +54,7 @@ if ( ! is_user_logged_in() && ! \WPDM\__\Session::get('guest_order') ) {
         'taxid'         => ''
     );
 
-    if ( (isset( $settings['billing_address'] ) && $settings['billing_address'] == 1)  || $order->uid == 0){
+    if ( ( isset( $settings['billing_address'] ) && $settings['billing_address'] == 1 ) || $order->uid == 0){
 
         // Asked billing address in checkout, Here we use order specific billing info
         // Or guest order invoice. Billing info is linked to the order
@@ -79,6 +78,7 @@ if ( ! is_user_logged_in() && ! \WPDM\__\Session::get('guest_order') ) {
         $billing_info['postcode']       == '' ||
         $billing_info['state'].$billing_info['city']          == ''
     ){
+
         $updatebilling = wpdm_user_dashboard_url(array('udb_page' => 'edit-profile'));
         Messages::warning("Critical billing info is missing. Please update your billing info to generate invoice properly.<br style='margin-bottom: 10px;display: block'/><a class='btn btn-warning' target='_top' onclick=\"window.opener.location.href='$updatebilling';window.close();return false;\" href='#'>Update Billing Info</a>", 1);
     }
@@ -152,22 +152,17 @@ OTH;
         $prices         = 0;
         $variations     = "";
         $discount       = $discount_r;
-        $_variations    = unserialize($item['variations']);
 
-        foreach ( $_variations as $vr ) {
-            $variations .= "{$vr['name']}: +{$csign_before}" . number_format(floatval($vr['price']), 2) . $csign_after;
-            $prices     += number_format(floatval($vr['price']), 2);
-        }
 
-        $itotal         = number_format(((($item['price'] + $prices) * $item['quantity']) - $discount - $item['coupon_discount']), 2, ".", "");
+        $itotal         = WPDMPP()->order->itemCost($item);
         $total          += $itotal;
         $order_item     = "";
         $discount       = number_format(floatval($discount), 2);
         $item['price']  = number_format($item['price'], 2);
-
+        $item_info = WPDMPP()->cart->itemInfo($item, false);
         $_ohtml .= <<<ITEM
                     <tr class="item">
-                        <td>{$ditem->post_title} <br> {$variations}</td>
+                        <td>{$item['product_name']} <br> {$item_info}</td>
                         <td>{$item['quantity']}</td>
                         <td class="text-right">{$csign_before}{$item['price']}{$csign_after}</td>
                         <td class="text-right">{$csign_before}{$item['coupon_discount']}{$csign_after}</td>
@@ -208,53 +203,67 @@ CINF;
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <?php wp_print_styles('wpdmpp-invoice'); ?>
+    <?php \WPDM\__\Apply::googleFont(); ?>
     <?php \WPDM\__\Apply::uiColors(true); ?>
+    <?php wp_print_styles('wpdmpp-invoice'); ?>
 </head>
 <body class="w3eden" onload="window.print();">
 <div class="container-fluid">
     <br/>
     <div class="row frow">
-        <div class="col-sm-<?php echo isset($_GET['renew']) ? 4 : 6; ?>">
-            <div class="panel panel-default card mb-3"><div class="panel-heading card-header card-header">
+        <div class="col-sm-5">
+            <div class="card"><div class="card-header">
                     <?php if($_GET['wpdminvoice'] != 'pdf'){ ?>
                         <button class="btn btn-primary btn-xs pull-right" id="btn-print" type="button" onclick="window.print();"><i class="fa fa-print"></i> <?php _e('Print Invoice','wpdm-premium-packages'); ?></button>
                     <?php } ?>
-                    <strong><?php _e('Invoice No','wpdm-premium-packages'); ?></strong>
+                    <?php _e('Invoice No','wpdm-premium-packages'); ?>
                 </div>
-                <div class="panel-body card-body card-body">
+                <div class="card-body">
                     <h3 class="text-info invoice-no"><?php echo $order->order_id; ?></h3>
                 </div>
             </div>
         </div>
-        <div class="col-sm-<?php echo isset($_GET['renew']) ? 4 : 6; ?> text-right">
-            <div class="panel panel-default card mb-3"><div class="panel-heading card-header card-header">
-                    <strong><?php _e('Order Date','wpdm-premium-packages'); ?></strong>
+        <div class="col-sm-7">
+            <div class="row">
+                <div class="col-sm-<?php echo isset($_GET['renew']) ? 4 : 6; ?> text-right">
+                    <div class="card"><div class="card-header">
+                            <?php _e('Order Date','wpdm-premium-packages'); ?>
+                        </div>
+                        <div class="card-body">
+                            <?php echo date(get_option('date_format'),$order->date); ?>
+                        </div>
+                    </div>
                 </div>
-                <div class="panel-body card-body card-body">
-                    <?php echo date(get_option('date_format'),$order->date); ?>
+                <?php if(isset($_GET['renew'])){ ?>
+                    <div class="col-sm-4 text-right">
+                        <div class="card"><div class="card-header">
+                                <?php _e('Order Renewed On','wpdm-premium-packages'); ?>
+                            </div>
+                            <div class="card-body">
+                                <?php echo date(get_option('date_format'),(int)$_GET['renew']); ?>
+                            </div>
+                        </div>
+                    </div>
+                <?php } ?>
+                <div class="col-sm-<?php echo isset($_GET['renew']) ? 4 : 6; ?> text-right">
+                    <div class="card"><div class="card-header">
+                            <?php _e('Invoice Date','wpdm-premium-packages'); ?>
+                        </div>
+                        <div class="card-body">
+                            <?php echo date(get_option('date_format'),time()); ?>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <?php if(isset($_GET['renew'])){ ?>
-            <div class="col-sm-4 text-right">
-                <div class="panel panel-default card mb-3"><div class="panel-heading card-header card-header">
-                        <strong><?php _e('Order Renewed On','wpdm-premium-packages'); ?></strong>
-                    </div>
-                    <div class="panel-body card-body card-body">
-                        <?php echo date(get_option('date_format'),(int)$_GET['renew']); ?>
-                    </div>
-                </div>
-            </div>
-        <?php } ?>
 
     </div>
 
     <div class="row">
         <div class="col-sm-6">
-            <div class="panel panel-default info-panel card mb-3">
-                <div class="panel-heading card-header card-header"><strong><?php _e('From:','wpdm-premium-packages'); ?></strong></div>
-                <div class="panel-body card-body">
+            <div class="card info-panel">
+                <div class="card-header"><?php _e('From:','wpdm-premium-packages'); ?></div>
+                <div class="card-body">
 
                     <div class="media">
                         <div class="media-left">
@@ -263,7 +272,7 @@ CINF;
                             <?php } ?>
                         </div>
                         <div class="media-body">
-                            <h4 class="media-heading"><?php bloginfo('sitename'); ?></h4>
+                            <h4 class="media-heading" style="font-size: 10pt;font-weight: 600;letter-spacing: 0.5px;"><?php bloginfo('sitename'); ?></h4>
                             <p><?php echo nl2br($settings['invoice_company_address']); ?></p>
                         </div>
                     </div>
@@ -272,9 +281,9 @@ CINF;
             </div>
         </div>
         <div class="col-sm-6">
-            <div class="panel card panel-default info-panel mb-3">
-                <div class="panel-heading card-header"><strong><?php _e('To:','wpdm-premium-packages'); ?></strong></div>
-                <div class="panel-body card-body">
+            <div class="card info-panel">
+                <div class="card-header"><?php _e('To:','wpdm-premium-packages'); ?></div>
+                <div class="card-body">
                     <?php echo $invoice['client_info']; ?>
                 </div>
             </div>
@@ -287,20 +296,20 @@ CINF;
     </div>
     <div class="row">
         <div class="col-sm-6">
-            <div class="panel card panel-default"><div class="panel-heading card-header">
-                    <strong><?php _e('Payment Method','wpdm-premium-packages'); ?></strong>
+            <div class="card"><div class="card-header">
+                    <?php _e('Payment Method','wpdm-premium-packages'); ?>
                 </div>
-                <div class="panel-body card-body">
+                <div class="card-body">
                     <?php echo $order->payment_method; ?>
                 </div>
             </div>
         </div>
         <div class="col-sm-6 text-right">
-            <div class="panel card panel-default">
-                <div class="panel-heading card-header">
-                    <strong><?php _e('Payment Status','wpdm-premium-packages'); ?></strong>
+            <div class="card">
+                <div class="card-header">
+                    <?php _e('Payment Status','wpdm-premium-packages'); ?>
                 </div>
-                <div class="panel-body card-body">
+                <div class="card-body">
                     <?php echo $order->payment_status; ?>
                 </div>
             </div>
