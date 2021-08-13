@@ -196,8 +196,11 @@ jQuery(function ($) {
                 }
                 form.find('.btn-viewcart').hide();
                 btnaddtocart.addClass('btn-wc');
-                /* btnaddtocart.html('<i class="fas fa-check-square"></i>').after('<div class="btn-group cobtn-group-" style="min-width:'+btnaddtocart.css('width')+'"><a title="Remove From Cart" style="width: 55px" class="btn btn-secondary" href="#Remove From Cart"><i class="fas fa-trash"></i></a><a style="width: calc(100% - 55px)" href="' + res + '" class="' + btnaddtocart.attr('class').replace('btn-addtocart', 'btn-checkout') + ' btn-viewcart" type="button">Checkout <i class="fas fa-check-double"></i></a></div>'); */
                 btnaddtocart.html('<i class="fas fa-check-square"></i>').after('<a style="min-width:'+btnaddtocart.css('width')+'" href="' + res + '" class="' + btnaddtocart.attr('class').replace('btn-addtocart', 'btn-checkout') + ' btn-viewcart" type="button">Checkout <i class="fas fa-check-double"></i></a>');
+                /*
+                btnaddtocart.html(btnlbl).removeAttr('disabled');
+                WPDM.floatify(WPDM.card("", WPDM.fa('fa fa-check-double text-success') + " Item is added to cart.", WPDM.el("a", {href:res, 'class': 'btn btn-primary btn-block'}, "Checkout"), "wpdmpp-checkout-notice", "font-size: 11pt"));
+                */
                 btnaddtocart.removeAttr('disabled').hide();
                 $('.ttip').tooltip({html: true});
                 window.postMessage("cart_updated", window.location.protocol + "//" + window.location.hostname);
