@@ -568,7 +568,7 @@ if (!class_exists('Paypal')) {
             if($client_id === '' || (double)wpdmpp_get_cart_total() == 0) return '';
 
 
-            $wpdmpp->create_order();
+            WPDMPP()->create_order();
 
             $order = new Order(Session::get('orderid'));
 

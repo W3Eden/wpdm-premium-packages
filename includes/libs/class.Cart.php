@@ -146,9 +146,10 @@ class Cart
 
             //Condition for as you want to pay
             $iwantopay = wpdm_valueof($extras, 'iwantopay', ['validate' => 'double']);
-            $base_price = $iwantopay > $base_price ?: $base_price;
+            $base_price = $iwantopay > $base_price ? $iwantopay : $base_price;
             $files = [];
             $role_discount = 0;
+            $gigs = [];
 
         }
 

@@ -33,8 +33,8 @@ class Order
             $this->oid = $oid;
             $this->ID = $oid;
             $order = $this->getOrder($oid);
-            $order = (array)$order;
-            if (is_array($order) && count($order) > 0) {
+            if ($order) {
+                $order = (array)$order;
                 foreach ($order as $key => $val) {
                     $this->$key = maybe_unserialize($val);
                     if ($key != 'order_id')

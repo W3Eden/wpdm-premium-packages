@@ -424,6 +424,7 @@ if (!class_exists('\WPDMPP\Libs\Installer')):
             $installer->addColumn('ahm_order_items', 'license', "TEXT NULL AFTER `pid`");
             $installer->changeColumn('ahm_order_items', 'coupon_amount', 'coupon_discount', "FLOAT NULL DEFAULT NULL");
             $installer->addColumn('ahm_orders', 'IP', "VARCHAR(250) NULL");
+            $installer->changeColumn('ahm_orders', 'IP', 'IP', 'VARCHAR(250) NULL');
             $installer->addColumn('ahm_orders', 'refund', "DOUBLE NOT NULL DEFAULT '0'");
             $installer->addColumn('ahm_orders', 'discount', "FLOAT NOT NULL");
             $installer->addColumn('ahm_orders', 'coupon_discount', "FLOAT NOT NULL");
@@ -432,7 +433,6 @@ if (!class_exists('\WPDMPP\Libs\Installer')):
             $installer->addColumn('ahm_orders', 'order_notes', "TEXT NOT NULL");
             $installer->addColumn('ahm_orders', 'download', "INT NOT NULL");
             $installer->addColumn('ahm_orders', 'coupon_code', "VARCHAR( 100 ) NOT NULL");
-            $installer->addColumn('ahm_orders', 'IP', "VARCHAR( 20 ) NOT NULL");
             $installer->addColumn('ahm_orders', 'ipn', "TEXT NOT NULL");
             $installer->addColumn('ahm_orders', 'unit_prices', "TEXT NOT NULL");
             $installer->addColumn('ahm_orders', 'billing_info', "TEXT NOT NULL");

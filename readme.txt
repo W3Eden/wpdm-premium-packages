@@ -101,6 +101,10 @@ We have made the tax calculation is easier for you. From premium package setting
 
 == Changelog ==
 
+= 5.0.7 - 2021.08.15 =
+* Fixed an issue with the pay as you want option
+* Fixed an issue with the cart redirection option
+
 = 5.0.6 - 2021.08.14 =
 * Added support for dynamic product
 * Improved add to cart functions

@@ -190,7 +190,7 @@ jQuery(function ($) {
             success: function (res) {
                 if(res.success) {
                     if (btnaddtocart.data('cart-redirect') == 'on') {
-                        location.href = res;
+                        location.href = res.cart_url;
                         return false;
                     }
                     form.find('.btn-viewcart').hide();
