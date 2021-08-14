@@ -245,13 +245,13 @@ $base_price = (double)get_post_meta($post->ID,'__wpdm_base_price',true);
         <div class="col-md-12  wpdm-full-front">
             <div id="wpdmpp_discount">
                 <?php if(is_admin()){ ?>
-                <div class="panel panel-default">
+                <div class="panel panel-default" <?php if(get_wpdmpp_option('no_role_discount', 0, 'int') === 1) echo 'style="display: none;"' ?>>
                     <div class="panel-heading"><?php _e('Role Based Discount','wpdm-premium-packages'); ?></div>
                     <?php $discount = get_post_meta($post->ID, '__wpdm_discount', true);  ?>
                     <table class="table table-v">
                         <tr>
                             <th align="left"><?php _e('Role','wpdm-premium-packages'); ?></th>
-                            <th align="left"><?php _e('Discount','wpdm-premium-packages'); ?> (%)</th>
+                            <th align="left" style="width: 120px"><?php _e('Discount','wpdm-premium-packages'); ?> (%)</th>
                         </tr>
                         <?php
                         global $wp_roles;
@@ -261,11 +261,37 @@ $base_price = (double)get_post_meta($post->ID,'__wpdm_base_price',true);
                         ?>
                         <tr>
                             <td><?php echo $name; ?> (<?php echo $role; ?>) </td>
-                            <td><input class="form-control input-sm" style="width: 70px" type="text" size="8" name="file[discount][<?php echo $role; ?>]" value="<?php if(isset($discount[$role])) echo $discount[$role]; ?>"></td>
+                            <td><input class="form-control input-sm" type="number" size="8" name="file[discount][<?php echo $role; ?>]" value="<?= wpdm_valueof($discount, $role); ?>"></td>
                         </tr>
                         <?php } ?>
                     </table>
                 </div>
+
+                    <div class="panel panel-default">
+                        <div class="panel-heading"><?=esc_attr__( 'Customer Role Assignment', WPDMPP_TEXT_DOMAIN ); ?></div>
+                        <div class="panel-body">
+                            <p><?=esc_attr__( 'After purchase this item assign the following role to the customer', WPDMPP_TEXT_DOMAIN ) ?></p>
+                            <select name="file[assign_role]" class="chzn-select role" style="min-width: 450px">
+                                <option value=""><?= esc_attr__( 'Do not assign', WPDMPP_TEXT_DOMAIN )?></option>
+                                <?php
+
+                                $assign_role = get_post_meta($post->ID, '__wpdm_assign_role', true);
+                                $selz = '';
+
+                                ?>
+
+                                <?php
+                                global $wp_roles;
+                                $roles = array_reverse($wp_roles->role_names);
+                                foreach( $roles as $role => $name ) {
+                                    if($role !== 'administrator') {
+                                    ?>
+                                    <option value="<?php echo $role; ?>" <?php selected($assign_role, $role)  ?>> <?php echo $name; ?></option>
+                                <?php }} ?>
+                            </select>
+                        </div>
+                    </div>
+
                 <?php } ?>
 
             </div>

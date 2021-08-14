@@ -326,7 +326,7 @@ foreach ($renews as $renew){
                             </td>
                             <td class="">
                                 <?php if(is_object($user_info)){ ?>
-                                    <b><a href="user-edit.php?user_id=<?php echo $user_info->ID; ?>"><?php echo $user_info->display_name; ?></a></b>
+                                    <b><a href="edit.php?post_type=wpdmpro&page=customers&view=profile&id=<?php echo $user_info->ID; ?>"><?php echo $user_info->display_name; ?></a></b>
                                     <a class="text-filter" title="<?php _e('All orders placed by this customer','wpdm-premium-packages'); ?>" href="edit.php?post_type=wpdmpro&page=orders&customer=<?php echo $user_info->ID; ?>"><i class="fas fa-search"></i></a><br/>
                                     <a href="mailto:<?php echo $user_info->user_email; ?>"><?php echo $user_info->user_email; ?></a>
                                 <?php } else { ?>

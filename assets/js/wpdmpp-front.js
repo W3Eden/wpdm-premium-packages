@@ -1,10 +1,7 @@
 jQuery(function ($) {
 
-    try {
+    if(typeof $().tooltip === 'function')
         $('.ttip').tooltip();
-    } catch (e){
-
-    }
 
     var $body = $('body');
 
@@ -32,10 +29,11 @@ jQuery(function ($) {
         });
         ps = parseFloat(ps).toFixed(2);
         var ppc = al == ''?parseFloat($('#price-'+pid).attr('content')):parseFloat($('.license-'+pid+ '[value='+al+']').data('price'));
-        if(ps == 0 || uc == 0 || ps > parseFloat(ppc)) ps = ppc.toFixed(2);
+        if(ps == 0 || uc == 0 || ps > parseFloat(ppc)) ps = parseFloat(ppc);
+
         ps += wpdmpp_extra_gigs();
         /*$('.price-'+pid).html(wpdmpp_currency_sign+ps);*/
-        $('.price-'+pid).html(wpdmpp_csign_before+ps+wpdmpp_csign_after);
+        $('.price-'+pid).html(wpdmpp_csign_before+(parseFloat(ps).toFixed(2))+wpdmpp_csign_after);
         $('#files_'+pid).val(files);
         $('#total-price-' + pid).val(parseFloat(ps).toFixed(2));
 
@@ -180,7 +178,7 @@ jQuery(function ($) {
         }
     });
 
-
+    var cnotif = false;
     $body.on('submit', '.wpdm_cart_form', function () {
         var btnaddtocart = $(this).find('.btn-addtocart');
         btnaddtocart.css('width', btnaddtocart.css('width'));
@@ -190,20 +188,22 @@ jQuery(function ($) {
         btnaddtocart.html(wpdm_js.spinner);
         $(this).ajaxSubmit({
             success: function (res) {
-                if (btnaddtocart.data('cart-redirect') == 'on') {
-                    location.href = res;
-                    return false;
+                if(res.success) {
+                    if (btnaddtocart.data('cart-redirect') == 'on') {
+                        location.href = res;
+                        return false;
+                    }
+                    form.find('.btn-viewcart').hide();
+                    btnaddtocart.addClass('btn-wc');
+                    btnaddtocart.html(btnlbl).removeAttr('disabled');
+                    if(cnotif) cnotif.remove();
+                    cnotif = WPDM.notify('<span class="w3eden">'+res.message+'</span>', 'info', 'top-center');
+                    $('.ttip').tooltip({html: true});
+                    window.postMessage("cart_updated", window.location.protocol + "//" + window.location.hostname);
+                } else {
+                    WPDM.notify('<span class="w3eden">'+res.message+"</span>", 'error', 'top-center');
+                    btnaddtocart.html(btnlbl).removeAttr('disabled');
                 }
-                form.find('.btn-viewcart').hide();
-                btnaddtocart.addClass('btn-wc');
-                btnaddtocart.html('<i class="fas fa-check-square"></i>').after('<a style="min-width:'+btnaddtocart.css('width')+'" href="' + res + '" class="' + btnaddtocart.attr('class').replace('btn-addtocart', 'btn-checkout') + ' btn-viewcart" type="button">Checkout <i class="fas fa-check-double"></i></a>');
-                /*
-                btnaddtocart.html(btnlbl).removeAttr('disabled');
-                WPDM.floatify(WPDM.card("", WPDM.fa('fa fa-check-double text-success') + " Item is added to cart.", WPDM.el("a", {href:res, 'class': 'btn btn-primary btn-block'}, "Checkout"), "wpdmpp-checkout-notice", "font-size: 11pt"));
-                */
-                btnaddtocart.removeAttr('disabled').hide();
-                $('.ttip').tooltip({html: true});
-                window.postMessage("cart_updated", window.location.protocol + "//" + window.location.hostname);
             }
         });
         return false;
@@ -530,8 +530,8 @@ function populateStates(countryCode){
 function wpdmpp_extra_gigs() {
     var exgigs = [], sum = 0, added = [];
     jQuery('.wpdmpp-extra-gig').each(function () {
-        if(jQuery(this).is(':checked') && added.indexOf(parseInt(jQuery(this).val())) < 0){
-            added.push(parseInt(jQuery(this).val()));
+        if(jQuery(this).is(':checked') && added.indexOf(parseFloat(jQuery(this).val())) < 0){
+            added.push(parseFloat(jQuery(this).val()));
             sum += parseFloat(jQuery(this).data('price'));
         }
     });

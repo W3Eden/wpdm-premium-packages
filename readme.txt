@@ -50,6 +50,9 @@ Premium Package Add-on introduced the simplest checkout system ever, no complex 
 = Save & Email Cart =
 Add items to your cart, you can save it to checkout later or email the saved cart to someone you want to pay for the items.
 
+= Dynamic Product =
+Need to accept quick payment through your site? Now, you even don't have to create a product anymore, Premium Package's dynamic product feature enables you to accept any one time or recurring payment just on the fly.
+
 = Software Licensing =
 Integrated Software Licensing option with this Digital Store add-on gives you a complete license key generation, key activation, and verification system.
 
@@ -98,8 +101,9 @@ We have made the tax calculation is easier for you. From premium package setting
 
 == Changelog ==
 
-= 5.0.6 - 2021.08.08 =
+= 5.0.6 - 2021.08.14 =
 * Added support for dynamic product
+* Improved add to cart functions
 
 = 5.0.5 - 2021.08.04 =
 * Improved product seach option with new order / coupon / license

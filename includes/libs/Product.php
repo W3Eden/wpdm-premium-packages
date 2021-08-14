@@ -6,8 +6,9 @@ class Product
 {
     private $ID;
     private $type;
-    public $basePrice = -1;
-    public $payAsYouWant = null;
+    private $customerRole = -1;
+    private $basePrice = -1;
+    private $payAsYouWant = null;
     public $licenseEnabled = null;
     public $licenses = [];
     public $extraGigs = [];
@@ -140,5 +141,27 @@ class Product
         }
 
         return $name ? [ 'role' => $this->discountedRole, 'discount' => $this->roleDiscount ] : $this->roleDiscount;
+    }
+
+    function customerRole()
+    {
+        $this->customerRole = $this->customerRole !== -1 ? $this->customerRole : get_post_meta($this->ID, '__wpdm_assign_role', true);
+        return $this->customerRole;
+    }
+
+    function assignRole($customer)
+    {
+        $role = $this->customerRole();
+        if(!$role) return;
+        $user = new \WP_User($customer);
+        $user->add_role($role);
+
+    }
+    function removeRole($customer)
+    {
+        $role = $this->customerRole();
+        if(!$role) return;
+        $user = new \WP_User($customer);
+        $user->remove_role($role);
     }
 }

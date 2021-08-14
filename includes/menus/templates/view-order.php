@@ -4,14 +4,13 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 global $wpdb;
 $order->items = unserialize($order->items);
 $oitems = $wpdb->get_results("select * from {$wpdb->prefix}ahm_order_items where oid='{$order->order_id}'");
-    $role = '';
+
     $currency = maybe_unserialize($order->currency);
     $currency_sign = is_array($currency) && isset($currency['sign'])?$currency['sign']:'$';
     if($order->uid > 0){
         $user = new WP_User( $order->uid );
-        $role = $user->roles[0];
-    }
-    $tax = $orderObj->wpdmpp_calculate_tax($order->order_id);
+        //$role = is_object($user) ? [0] : '';
+    } else $user = null;
     $settings = maybe_unserialize(get_option('_wpdmpp_settings'));
     $total_coupon = wpdmpp_get_all_coupon(unserialize($order->cart_data));
 
@@ -306,19 +305,6 @@ $renews = $wpdb->get_results("select * from {$wpdb->prefix}ahm_order_renews wher
         <table class="table">
             <tr><td><?php _e("Total Coupon Discount:", "wpdm-premium-packages"); ?></td><td><?php echo wpdmpp_price_format($coupon_discount + $order->coupon_discount,true, true); ?></td></tr>
             <tr><td><?php _e("Role Discount:", "wpdm-premium-packages"); ?></td><td><?php echo wpdmpp_price_format($role_discount,true, true); ?></td></tr>
-            <?php
-            if (count($tax) > 0) {
-                foreach ($tax as $taxrow) {
-                    ?>
-                    <tr><td><?php echo $taxrow['label']; ?></td><td><?php echo wpdmpp_price_format($taxrow['rates'],true, true); ?></td></tr>
-                <?php
-                }
-            }
-
-            $ret = '';
-            $ret = apply_filters('wpdmpp_admin_order_details',$ret,$order->order_id);
-            if($ret != '') echo $ret;
-            ?>
 
 
         </table>
@@ -330,7 +316,7 @@ $renews = $wpdb->get_results("select * from {$wpdb->prefix}ahm_order_renews wher
     <?php if($order->uid>0){ ?>
         <table class="table" id="cintable">
             <tbody>
-            <tr><td><?php _e("Customer Name:", "wpdm-premium-packages"); ?></td><td><a href='user-edit.php?user_id=<?php echo $user->ID; ?>'><?php echo $user->display_name; ?></a></td></tr>
+            <tr><td><?php _e("Customer Name:", "wpdm-premium-packages"); ?></td><td><a href='edit.php?post_type=wpdmpro&page=customers&view=profile&id=<?php echo $user->ID; ?>'><?php echo $user->display_name; ?></a></td></tr>
             <tr><td><?php _e("Customer Email:", "wpdm-premium-packages"); ?></td><td><button type="button" class="btn btn-xs btn-warning pull-right" data-toggle="modal" data-target="#changecustomer"><?php _e('Change', 'wpdm-premium-packages') ?></button><a href='mailto:<?php echo $user->user_email; ?>'><?php echo $user->user_email; ?></a></td></tr>
             </tbody>
         </table>
@@ -393,19 +379,7 @@ $renews = $wpdb->get_results("select * from {$wpdb->prefix}ahm_order_renews wher
                                         });
                                     </script>
                         </div></td></tr>
-                        <?php
-                        if (count($tax) > 0) {
-                            foreach ($tax as $taxrow) {
-                                ?>
-                                <tr><td><?php echo $taxrow['label']; ?></td><td><?php echo $currency_sign . $taxrow['rates']; ?></td></tr>
-                            <?php
-                            }
-                        }
 
-                        $ret = '';
-                        $ret = apply_filters('wpdmpp_admin_order_details',$ret,$order->order_id);
-                        if($ret != '') echo $ret;
-                        ?>
                     </table>
                 </div>
             </div>

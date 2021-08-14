@@ -4,6 +4,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+use WPDM\__\__;
 use WPDM\__\Session;
 use WPDM\__\Template;
 
@@ -69,10 +70,16 @@ function wpdmpp_check_coupon($pid, $coupon){
  */
 function wpdmpp_add_to_cart(){
     if( isset( $_REQUEST['addtocart'])) {
+
+        if(WPDMPP()->cart->isLocked()) {
+            $message = apply_filters("wpdmpp_cart_locked_message", "<i class='fa fa-exclamation-triangle'></i> ".esc_attr__( 'Cart is locked. Please empty cart or complete purchase of active cart first!', WPDMPP_TEXT_DOMAIN ).wpdmpp_checkout_link(esc_attr__( 'Go To Cart', WPDMPP_TEXT_DOMAIN ), 'ml-3 btn btn-danger btn-sm'));
+            wp_send_json(['success' => false, 'message_type' => 'CART_LOCKED', 'message' => $message, 'cart_url' => wpdmpp_cart_page()]);
+        }
+
         if(get_post_type(wpdm_query_var('addtocart', 'int')) === 'wpdmpro')
-            WPDMPP()->cart->addItem(wpdm_query_var('addtocart', 'int'), wpdm_query_var('license', 'txt'), $_REQUEST);
+            $cart_data = WPDMPP()->cart->addItem(wpdm_query_var('addtocart', 'int'), wpdm_query_var('license', 'txt'), $_REQUEST);
         else if(wpdm_query_var('addtocart', 'txt') === 'dynamic')
-            WPDMPP()->cart->addDynamicItem("DP_".time(), wpdm_query_var('name'), wpdm_query_var('price'), ['desc' => wpdm_query_var('desc', 'txt'), 'image' => wpdm_query_var('image', 'url')]);
+            $cart_data = WPDMPP()->cart->addDynamicItem("DP_".time(), wpdm_query_var('name'), wpdm_query_var('price'), $_REQUEST);
 
 
         /*
@@ -236,10 +243,12 @@ function wpdmpp_add_to_cart(){
         /* Action after add to cart */
         do_action("wpdmpp_after_addtocart");
 
+        $product_id = wpdm_query_var('addtocart');
+        $product_name = wpdm_valueof($cart_data, "{$product_id}/product_name");
         /* Check if current request is AJAX  */
-        if( ! empty( $_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest' ) {
-            echo wpdmpp_cart_page();
-            die();
+        if( __::is_ajax() ) {
+            $message = apply_filters("wpdmpp_addtocart_success_message", "<i class='fa fa-check-double'></i> <strong>{$product_name}</strong> has been added to your cart ".wpdmpp_checkout_link(esc_attr__( 'Checkout', WPDMPP_TEXT_DOMAIN ), 'btn btn-info btn-sm ml-3'), wpdm_valueof($cart_data, $product_id));
+            wp_send_json(['success' => true, 'cart_url' => wpdmpp_cart_page(), 'message' => $message]);
         }
 
         if( (int)get_wpdmpp_option('wpdmpp_after_addtocart_redirect') === 1 ) {
@@ -1119,7 +1128,7 @@ function wpdmpp_tax_rate($country, $state = ''){
  * Clear all cart items
  */
 function wpdmpp_empty_cart(){
-    \WPDMPP\Libs\Cart::clear();
+    WPDMPP()->cart->clear();
 }
 
 function wpdmpp_addtocart_js(){

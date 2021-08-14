@@ -27,7 +27,7 @@ $customer = get_user_by('id', $uid);
                                 <?= is_object($customer) ? get_avatar($customer->user_email, 512):''; ?>
                             </div>
                         </div>
-                        <h2><?= is_object($customer) ? $customer->display_name : esc_attr__( 'User Delete / Not Found', 'wpdm-premium-packages' ) ; ?></h2>
+                        <h2><?= is_object($customer) ? $customer->display_name . "<a href='user-edit.php?user_id={$customer->ID}' class='pull-right text-muted'><i class='fa fa-edit'></i></a>" : esc_attr__( 'User Delete / Not Found', 'wpdm-premium-packages' ) ; ?></h2>
                         <div class="list-group">
                             <?php foreach ($tabs as $view => $_tab){ ?>
                                 <a href="edit.php?post_type=wpdmpro&page=customers&view=<?=$view;?>&id=<?=$uid; ?>" class="list-group-item <?= $tab === $view ? 'active' : ''; ?>"><?=$_tab['name'];?></a>

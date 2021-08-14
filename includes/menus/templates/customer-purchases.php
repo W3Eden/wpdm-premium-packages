@@ -87,7 +87,7 @@ $purchased_items = \WPDMPP\Libs\Order::getPurchasedItems(wpdm_query_var('id', 'i
                 ?>
                 <tr>
                     <td>
-                        <a target="_blank" href="edit.php?post_type=wpdmpro&page=orders&task=vieworder&id=<?= $item->oid ?>"><?=$item->post_title;?></a>
+                        <a target="_blank" href="edit.php?post_type=wpdmpro&page=orders&task=vieworder&id=<?= $item->oid ?>"><?=$item->product_name;?></a>
                     </td>
                     <td><?= maybe_unserialize($order->currency)['sign'] . wpdmpp_price_format($item->price, false) ?></td>
                     <td>

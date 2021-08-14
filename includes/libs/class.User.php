@@ -8,6 +8,7 @@
 
 namespace WPDMPP\Libs;
 
+use WPDMPP\Product;
 
 class User
 {
@@ -15,11 +16,9 @@ class User
     {
     }
 
-    static function addCustomer($userID = null)
+    static function addCustomer($userID)
     {
-        global $current_user;
-        $current_user = wp_get_current_user();
-        $userID = $userID ? $userID : $current_user;
+        if(!$userID) return 0;
         $user = is_object($userID) ? $userID : get_user_by('id', $userID);
         if (is_object($user) && get_class($user) == 'WP_User' && !in_array('wpdmpp_customer', $user->roles)) {
             $user->add_role('wpdmpp_customer');
@@ -28,7 +27,7 @@ class User
 
     static function removeCustomer($userID = null)
     {
-        global $current_user;
+        $current_user = wp_get_current_user();
         $userID = $userID ? $userID : $current_user;
         $user = is_object($userID) ? $userID : get_user_by('id', $userID);
         if (is_object($user) && get_class($user) == 'WP_User' && in_array('wpdmpp_customer', $user->roles)) {
@@ -39,6 +38,8 @@ class User
     static function calculateSpent($userID = null)
     {
         global $wpdb;
+        $userID = $userID ?: get_current_user_id();
+        if(!$userID) return 0;
         $order_total = $wpdb->get_var("select sum(total) from {$wpdb->prefix}ahm_orders where uid = '{$userID}' and order_status='Completed'");
         $renew_total = $wpdb->get_var("SELECT sum(total) FROM {$wpdb->prefix}ahm_orders o, {$wpdb->prefix}ahm_order_renews r WHERE o.order_id = r.order_id and o.uid = '{$userID}'");
         $total = $order_total + $renew_total;
@@ -52,6 +53,26 @@ class User
         if(!$total)
             return self::calculateSpent($userID);
         return $total;
+    }
+
+    static function processActiveRoles($userID)
+    {
+        if(!$userID) return 0;
+
+        $items = Order::getPurchasedItems($userID);
+
+        foreach ($items as $item) {
+            if($item->order_status !== 'Completed') {
+                $product = new Product($item->pid);
+                $product->removeRole($item->uid);
+            }
+        }
+        foreach ($items as $item) {
+            if($item->order_status === 'Completed') {
+                $product = new Product($item->pid);
+                $product->assignRole($item->cid);
+            }
+        }
     }
 
 }

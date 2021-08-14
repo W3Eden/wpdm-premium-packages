@@ -411,6 +411,11 @@ function wpdmpp_cart_url($params = array())
     return wpdmpp_cart_page($params);
 }
 
+function wpdmpp_checkout_link($label = 'Checkout', $class = 'btn btn-info' ,$params = array())
+{
+    return "<a href='".wpdmpp_cart_page($params)."' class='{$class}'>{$label}</a>";
+}
+
 function wpdmpp_is_cart_page($id = null)
 {
     $id = $id ?: get_the_ID();

@@ -30,15 +30,15 @@ $oid = uniqid();
 <div class="w3eden" id="wpdm-pp-settings">
     <div class="row">
         <div class="col-md-12 wpdm-full-front">
-            <div class="card">
-                <div class="card-header"><?php _e('Product Code','wpdm-premium-packages'); ?></div>
-                <div class="card-body">
+            <div class="card panel panel-default p-0 mb-3">
+                <div class="card-header panel-heading"><?php _e('Product Code','wpdm-premium-packages'); ?></div>
+                <div class="card-body panel-body">
                     <input type="text" placeholder="<?php echo __( "Define a unique product code", "download-manager" ); ?>" class="form-control input-lg" name="file[product_code]" value="<?php echo esc_attr(get_post_meta(get_the_ID(), '__wpdm_product_code', true)); ?>" />
                 </div>
             </div>
-            <div class="card">
-                <div class="card-header"><?php _e('Pricing','wpdm-premium-packages'); ?></div>
-                <div class="card-body">
+            <div class="card panel panel-default p-0 mb-3">
+                <div class="card-header panel-heading"><?php _e('Pricing','wpdm-premium-packages'); ?></div>
+                <div class="card-body panel-body">
                     <div class="row">
                         <div class="col-md-4">
                             <label for="base-price-field"><?php echo __('Base Price','wpdm-premium-packages'); ?></label>
@@ -60,20 +60,20 @@ $oid = uniqid();
                     </div>
                 </div>
                 <?php $price_variation = get_post_meta($post->ID,'__wpdm_price_variation',true);  ?>
-                <div class="card-header">
+                <div class="card-header panel-heading card-footer panel-footer br-0">
                     <label>
                         <input style="margin: 0;line-height: 10px" type="checkbox" <?php if($price_variation!='') echo "checked='checked'"; else echo "";?> name="file[price_variation]" id="price_variation" value="1" name="price_variation" > <?php echo __('Activate Extra Gigs','wpdm-premium-packages'); ?>
                     </label>
                 </div>
                 <div id="price_dis_table" style="<?php if($price_variation !== '') echo ""; else echo "display: none;";?>">
-                <div class="card-body">
+                <div class="card-body panel-body">
                     <div id="vdivs">
                         <?php
                         $variation =  get_post_meta($post->ID,'__wpdm_variation',true);
                         if(is_array($variation)){
                             foreach($variation as $key=>$vname){ ?>
-                                <div id="variation_div_<?php echo $key;?>" class="card">
-                                    <div class="card-header">
+                                <div id="variation_div_<?php echo $key;?>" class="card panel panel-default p-0 mb-3">
+                                    <div class="card-header panel-heading">
                                         <?php _e('Group ID#','wpdm-premium-packages');  ?> <?php echo $key;?> <i class="info fa fa-info" title="Use the Group ID when building add to cart URL"></i>
                                         <a class="delet_vdiv pull-right" rel="variation_div_<?php echo $key;?>" title="delete this gig"><i class="fa fa-times-circle text-danger"></i></a>
                                     </div>
@@ -105,7 +105,7 @@ $oid = uniqid();
                                         ?>
                                     </table>
                                     <div style="clear: both;"></div>
-                                    <div class="card-footer">
+                                    <div class="card-footer panel-footer">
                                     <input type="button" class="btn btn-default btn-sm add_voption" rel="<?php echo $key;?>" value="<?php _e('Add Gig','wpdm-premium-packages'); ?>">
                                     </div>
                                 </div>
@@ -114,16 +114,16 @@ $oid = uniqid();
                         } ?>
                     </div>
                 </div>
-                <div class="card-footer"><input type="button" class="btn btn-primary" id="add_variation" value="<?php _e('Add Gig Group','wpdm-premium-packages'); ?>"></div>
+                <div class="card-footer panel-footer"><input type="button" class="btn btn-primary" id="add_variation" value="<?php _e('Add Gig Group','wpdm-premium-packages'); ?>"></div>
                 </div>
 
             </div>
-            <div class="card">
-                <div class="card-header">
+            <div class="card panel panel-default p-0 mb-3">
+                <div class="card-header panel-heading">
 
                     <?php _e('Free Downloads','wpdm-premium-packages'); ?>
                 </div>
-                <div class="card-body">
+                <div class="card-body panel-body">
                     <div class="list-group" id="free-files">
                         <?php
                             $free_downloads = get_post_meta($post->ID, '__wpdm_free_downloads', true);
@@ -144,7 +144,7 @@ $oid = uniqid();
                         }
                         ?>
                     </div>
-                </div><div class="card-footer">
+                </div><div class="card-footer panel-footer">
                     <button type="button" id="addfreedls" class="btn btn-secondary btn-sm"><i class="fa fa-plus-circle"></i> <?php _e('Add Free File(s)','wpdm-premium-packages'); ?></button>
                 </div>
             </div>
@@ -164,7 +164,7 @@ $oid = uniqid();
                     });
                     $('#add_variation').on("click", function (){
                         var tm=new Date().getTime();
-                        $('#vdivs').append('<div id="variation_div_'+tm+'" class="card"><div class="card-header"><?php _e('Group ID','wpdm-premium-packages'); ?># '+tm+'<a class="delet_vdiv pull-right" rel="variation_div_'+tm+'" title="delete this variation"><i class="fa fa-times-circle text-danger"></i></a></div><table class="table table-v" id="voption_table_'+tm+'"><tr><td colspan="5"><label><input type="checkbox" style="margin: 0 !important;" name="file[variation]['+tm+'][multiple]"> <?php _e('Multiple Select','wpdm-premium-packages'); ?></label></td></tr><tr><td colspan="5"><input type="text" name="file[variation]['+tm+'][vname]" id="" class="form-control" placeholder="Group Name"></td></tr><tr><th>Gig Name</th><th>Gig Description</th><th>Gig ID</th><th width="150px">Extra Cost</th><th width="50px">Delete</th></tr><tr id="voption_'+tm+'"><td><input type="text" name="file[variation]['+tm+']['+tm+'][option_name]" id="" placeholder="Gig Name" class="form-control input-sm"></td><td><textarea name="file[variation]['+tm+']['+tm+'][option_description]"  placeholder="Gig Description" class="form-control"></textarea></td><td><input type="text"  placeholder="Gig Name" disabled=disabled value="'+tm+'" class="form-control input-sm"></td><td><div class="input-group input-group-sm"><span class="input-group-prepend"><span class="input-group-text"><i class="fa fa-plus-circle"></i></span></span><input type="number" class="form-control" style="max-width: 70px" min=0 name="file[variation]['+tm+']['+tm+'][option_price]" id="" placeholder="<?php _e('Price','wpdm-premium-packages'); ?>"></div></td><td><i class="delet_voption fa fa-times-circle text-danger" rel="voption_'+tm+'" title="delete this option" alt="" style="cursor:pointer"></i></td></tr></table><div style="clear: both;"></div><div class="card-footer"><input type="button" class="btn btn-secondary btn-sm add_voption" rel="'+tm+'" value="Add Gig"></div></div>');
+                        $('#vdivs').append('<div id="variation_div_'+tm+'" class="card panel panel-default p-0 mb-3"><div class="card-header panel-heading"><?php _e('Group ID','wpdm-premium-packages'); ?># '+tm+'<a class="delet_vdiv pull-right" rel="variation_div_'+tm+'" title="delete this variation"><i class="fa fa-times-circle text-danger"></i></a></div><table class="table table-v" id="voption_table_'+tm+'"><tr><td colspan="5"><label><input type="checkbox" style="margin: 0 !important;" name="file[variation]['+tm+'][multiple]"> <?php _e('Multiple Select','wpdm-premium-packages'); ?></label></td></tr><tr><td colspan="5"><input type="text" name="file[variation]['+tm+'][vname]" id="" class="form-control" placeholder="Group Name"></td></tr><tr><th>Gig Name</th><th>Gig Description</th><th>Gig ID</th><th width="150px">Extra Cost</th><th width="50px">Delete</th></tr><tr id="voption_'+tm+'"><td><input type="text" name="file[variation]['+tm+']['+tm+'][option_name]" id="" placeholder="Gig Name" class="form-control input-sm"></td><td><textarea name="file[variation]['+tm+']['+tm+'][option_description]"  placeholder="Gig Description" class="form-control"></textarea></td><td><input type="text"  placeholder="Gig Name" disabled=disabled value="'+tm+'" class="form-control input-sm"></td><td><div class="input-group input-group-sm"><span class="input-group-prepend"><span class="input-group-text"><i class="fa fa-plus-circle"></i></span></span><input type="number" class="form-control" style="max-width: 70px" min=0 name="file[variation]['+tm+']['+tm+'][option_price]" id="" placeholder="<?php _e('Price','wpdm-premium-packages'); ?>"></div></td><td><i class="delet_voption fa fa-times-circle text-danger" rel="voption_'+tm+'" title="delete this option" alt="" style="cursor:pointer"></i></td></tr></table><div style="clear: both;"></div><div class="card-footer panel-footer"><input type="button" class="btn btn-secondary btn-sm add_voption" rel="'+tm+'" value="Add Gig"></div></div>');
                     });
                     $('body').on("click", '.delet_vdiv', function(){
                         if(confirm("Are you sure to remove"))
@@ -184,9 +184,9 @@ $oid = uniqid();
             </script>
 
             <!-- Tick to Enable Licensing For this package -->
-            <div class="card">
-                <div class="card-header"><?php _e('Licensing Option','wpdm-premium-packages'); ?></div>
-                <div class="card-body">
+            <div class="card panel panel-default p-0 mb-3">
+                <div class="card-header panel-heading"><?php _e('Licensing Option','wpdm-premium-packages'); ?></div>
+                <div class="card-body panel-body">
                     <label>
                         <input type="checkbox" id="licreq"  style="margin: 0 !important;" value="1" name="file[enable_license]" <?php if(get_post_meta($post->ID, "__wpdm_enable_license", true)==1) echo 'checked="checked"'; ?> > &nbsp;<?php _e('Enable Licensing','wpdm-premium-packages'); ?>
                     </label>
@@ -243,13 +243,13 @@ $oid = uniqid();
         <div class="col-md-12  wpdm-full-front">
             <div id="wpdmpp_discount">
                 <?php if(is_admin()){ ?>
-                <div class="card">
-                    <div class="card-header"><?php _e('Role Based Discount','wpdm-premium-packages'); ?></div>
+                <div class="card panel panel-default p-0 mb-3">
+                    <div class="card-header panel-heading"><?php _e('Role Based Discount','wpdm-premium-packages'); ?></div>
                     <?php $discount = get_post_meta($post->ID, '__wpdm_discount', true);  ?>
                     <table class="table table-v">
                         <tr>
                             <th align="left"><?php _e('Role','wpdm-premium-packages'); ?></th>
-                            <th align="left"><?php _e('Discount','wpdm-premium-packages'); ?> (%)</th>
+                            <th align="left" style="width: 120px"><?php _e('Discount','wpdm-premium-packages'); ?> (%)</th>
                         </tr>
                         <?php
                         global $wp_roles;
@@ -259,7 +259,7 @@ $oid = uniqid();
                         ?>
                         <tr>
                             <td><?php echo $name; ?> (<?php echo $role; ?>) </td>
-                            <td><input class="form-control input-sm" style="width: 70px" type="text" size="8" name="file[discount][<?php echo $role; ?>]" value="<?php if(isset($discount[$role])) echo $discount[$role]; ?>"></td>
+                            <td><input class="form-control input-sm" type="number" size="8" name="file[discount][<?php echo $role; ?>]" value="<?php if(isset($discount[$role])) echo $discount[$role]; ?>"></td>
                         </tr>
                         <?php } ?>
                     </table>

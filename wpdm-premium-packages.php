@@ -46,10 +46,7 @@ if (!class_exists('WPDMPremiumPackage')):
         define('WPDMPP_TPL_FALLBACK', dirname(__FILE__) . '/templates/');
 
     if(!defined('WPDMPP_TPL_DIR')) {
-        if((int)get_option('__wpdm_bsversion', '') === 3 || is_admin())
-            define('WPDMPP_TPL_DIR', dirname(__FILE__) . '/templates3/');
-        else
-            define('WPDMPP_TPL_DIR', dirname(__FILE__) . '/templates/');
+        define('WPDMPP_TPL_DIR', dirname(__FILE__) . '/templates/');
     }
 
 	class WPDMPremiumPackage

@@ -11,6 +11,7 @@ namespace WPDMPP\Libs;
 use WPDM\__\Crypt;
 use WPDM\__\Template;
 use WPDM\__\Session;
+use WPDM\__\TempStorage;
 use WPDM\__\UI;
 use WPDMPP\Product;
 
@@ -109,6 +110,9 @@ class Cart
         $cart_id = $this->getID();
         $cart_data = $this->getItems();
 
+        if($this->isLocked())
+            return $cart_data;
+
         $product = new Product($product_id);
 
         if (isset($cart_data[$product_id])) unset($cart_data[$product_id]);
@@ -179,7 +183,16 @@ class Cart
     {
 
         $cart_id = $this->getID();
-        $cart_data = $this->getItems();
+        if(!isset($extras['recurring'])) {
+            $cart_data = $this->getItems();
+            if($this->isLocked())
+                return $cart_data;
+        }
+        else {
+            $cart_data = [];
+            TempStorage::set("__rec_{$cart_id}", wpdm_valueof($extras, 'recurring', ['validate' => 'int']));
+            $this->lockCart();
+        }
 
         if (isset($cart_data[$product_id])) unset($cart_data[$product_id]);
 
@@ -203,6 +216,21 @@ class Cart
 
     }
 
+    function lockCart()
+    {
+        update_option('__wpdm_cart_locked', 1, false);
+    }
+
+    function unlockCart()
+    {
+        delete_option('__wpdm_cart_locked');
+    }
+
+    function isLocked()
+    {
+        return (int)get_option('__wpdm_cart_locked', 0);
+    }
+
     function applyCoupon($code, $product_id = null)
     {
 
@@ -216,7 +244,10 @@ class Cart
     {
         $cart_id = $this->getID();
         $cart_data = $this->getItems();
-        if (isset($cart_data[$product_id])) unset($cart_data[$product_id]);
+        if (isset($cart_data[$product_id])) {
+            $this->unlockCart();
+            unset($cart_data[$product_id]);
+        }
 
         update_option($cart_id, $cart_data, false);
         return $cart_data;
@@ -456,11 +487,12 @@ class Cart
         return $Template->fetch('checkout-cart/cart.php', WPDMPP_TPL_DIR, WPDMPP_TPL_FALLBACK);
     }
 
-    static function clear()
+    function clear()
     {
         global $current_user;
         $current_user = wp_get_current_user();
         $cart_id = wpdmpp_cart_id();
+        $this->unlockCart();
         delete_option($cart_id);
         delete_option($cart_id . "_coupon");
         if (Session::get('orderid')) {
@@ -478,6 +510,9 @@ class Cart
         $cart_data = maybe_unserialize(get_option($guest_cart_id));
         update_option($user_cart_id, $cart_data, false);
         delete_option($guest_cart_id);
+
+        User::processActiveRoles($user->ID);
+
     }
 
     static function clearAll()

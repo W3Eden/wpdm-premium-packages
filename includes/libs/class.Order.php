@@ -17,8 +17,15 @@ if (!defined('ABSPATH')) {
 class Order
 {
     var $oid;
+    var $order_id;
+    var $trans_id;
+    var $title;
+    var $date;
+    var $expire_date;
+    var $auto_renew;
     var $ID;
     var $orderData;
+    var $uid = 0;
 
     function __construct($oid = '')
     {
@@ -191,25 +198,20 @@ class Order
         if (!is_user_logged_in()) {
             Session::set('guest_order', $id, 18000);
             Session::set('order_email', $buyer_email, 18000);
-        } else
-            User::addCustomer();
-
-        //print_r( $order_det );die();
+        } else {
+            User::addCustomer($order_det->uid);
+            User::processActiveRoles($order_det->uid);
+        }
 
         $order_det->currency = maybe_unserialize($order_det->currency);
 
         if ($order_det->order_status == 'Expired') {
-
             $t = time();
             $wpdb->insert("{$wpdb->prefix}ahm_order_renews", array('order_id' => $order_det->order_id, 'subscription_id' => $order_det->trans_id, 'date' => $t));
-
             //\WPDMPP\Libs\Order::add_note($id, array('note'=>'Order Renewed Successfully <a onclick="window.open(\'?id='.$id.'&wpdminvoice=1&renew='.$t.'\',\'Invoice\',\'height=720, width = 750, toolbar=0\'); return false;" href="#" class="btn-invoice">Get Invoice</a>.','by'=>'Customer'));
-
             do_action('wpdmpp_order_renewed', $id);
         } else {
-
             //\WPDMPP\Libs\Order::add_note($id, array('note'=>'Order Status: Completed / Payment Status: Completed / Paid with: '.$order_det->payment_method,'by'=>'Customer'));
-
             do_action('wpdmpp_order_completed', $id);
         }
 
@@ -412,13 +414,14 @@ class Order
         $order->save();
         $items = "<ul>";
         foreach ($_items as $item) {
-            $product = get_post($item['pid']);
-            $license = maybe_unserialize($item['license']);
-            $license = is_array($license) && isset($license['info'], $license['info']['name']) ? " &mdash; " . $license['info']['name'] . " License" : '';
-            $item = "<li><a href='" . get_permalink($product->ID) . "'>{$product->post_title}{$license}</a></li>";
+            $item = "<li>".WPDMPP()->cart->itemLink($item).WPDMPP()->cart->itemInfo($item)."</li>";
             $items .= $item;
+            $product = new Product($item['pid']);
+            $product->removeRole($order->uid);
         }
         $items .= "</ul>";
+
+
         if ($email_notify) {
             $user = get_user_by('id', $order->uid);
             $settings = get_option('_wpdmpp_settings');
@@ -689,12 +692,13 @@ class Order
         $current_user = wp_get_current_user();
         if (!$uid && is_user_logged_in()) $uid = $current_user->ID;
         if (!$uid) return [];
-        $purchased_items = $wpdb->get_results("select p.post_title,oi.*, o.order_status, o.date as order_date from {$wpdb->prefix}ahm_order_items oi,{$wpdb->prefix}ahm_orders o,{$wpdb->prefix}posts p where oi.pid = p.ID and o.order_id = oi.oid and o.uid = {$uid} and o.order_status IN ('Expired', 'Completed') order by `order_date` desc");
+        $purchased_items = $wpdb->get_results("select oi.*, o.order_status, o.date as order_date from {$wpdb->prefix}ahm_order_items oi,{$wpdb->prefix}ahm_orders o where o.order_id = oi.oid and o.uid = {$uid} and o.order_status IN ('Expired', 'Completed') order by `order_date` desc");
         foreach ($purchased_items as &$item) {
             $files = get_post_meta($item->pid, '__wpdm_files', true);
-            foreach ($files as $id => $index) {
-                $item->download_url[$index] = WPDMPremiumPackage::customerDownloadURL($item->pid, $item->oid) . "&ind={$id}";
-                //home_url("/?wpdmdl={$item->pid}&oid={$item->oid}&ind=" . $id);
+            if(is_array($files)) {
+                foreach ($files as $id => $index) {
+                    $item->download_url[$index] = WPDMPremiumPackage::customerDownloadURL($item->pid, $item->oid) . "&ind={$id}";
+                }
             }
         }
         return $purchased_items;
